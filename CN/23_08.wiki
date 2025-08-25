@@ -1,0 +1,116 @@
+= Terms =
+Network Jitter = Latency/Delay between packets
+UDP = Unreliable data transfer protocol (LMAO)
+
+= UDP =
+* UDP doesnt provide a guarantee to deliver, they still are delivered
+* UDP is used in programs where delivery guarantee is not necessary like `traceroute`
+* UDP is faster but unreliable
+
+HTTP1 and HTTP2 are prominent web protocols
+HTTP3
+- Implemented by Google (used in chrome)
+- uses UDP
+- Also called Quick Protocol
+
+= Web and HTTP =
+* Web = collection of objects / HTTP pages
+* HTTP = hyper text transfer protocols
+* everything is a link
+* URL = unique resource locator
+* URL = hostname + pathname
+* HTTP and HTML Developed by Tim Burner Lee
+
+== HTTP ==
+* Application layer protocol for Web
+* Client/server model
+* Client: Usually a browser sends an HTTP request and the server displays the web objects
+	* Browser implements HTTP procotols
+	* Displays HTML
+* Server: Sends HTTP responses to reqs
+* Also called Request-Response protocol
+* HTTP uses TCP
+
+=== Process ===
+* Client Initiates TCP connection
+	* Creates socket and sends connection req to server
+* Server accepts TCP connection
+* HTTP messages exchanged (application-layer protocol msgs)
+* TCP connection closed
+
+=== Stateless ===
+* HTTP is stateless
+* Server maintains no information about past client requests
+* Why? For efficiency and simple implementation
+
+=== Types of HTTP ===
+1. Non persistent HTTP (HTTP 1.0)
+	* TCP Connection opened
+	* At most *one* object sent over TCP
+	* TCP connection closed
+	* If you want to send multiple objects, you need multiple TCP connections
+2. Persistent HTTP (HTTP 1.1)
+	* Connection opened to a server
+	* multiple objects can be sent over TCP
+	* Connection closed
+
+* first request from the client just requests for connection and then the server responds with  200(ok) or error and then client asks for object(s) and then server responds
+* *NOTE*: Server closes the TCP connection
+* Initially, non persistent http was implemented because of lack of objects like images etc
+* The change from non persistent to persistent was very quick
+
+=== RTT ===
+* Round Trip Time
+* Time for a small packet to travel from client to server and back
+
+=== Non Persistent HTTP (HTTP1.0) ===
+* For a single object and for a very large file in non-persistent http, total time taken is: RTT + RTT + actual file transmission time
+	* One RTT for connection init request
+	* Second RTT for HTTP request for object
+	* Plus object/file transmission time
+* Optimization in non-persistent: Client should make multiple request i.e. for all the objects in the web page without the server closing the connection in-between
+* After optimization, if we have 11 obj in a webpage, we require 12RTT + 11 * (file transmission time)
+* Optimizing further? Request for all the objects in a single request
+* DoS = Denial of Service: Ghosting
+	* Connection made but client doesnt talk further (RIP)
+
+=== Persistent HTTP (HTTP1.1) ===
+* Server leaves connection open after sending response
+* But when will server close the connection?
+
+=== Types of HTTP messages ===
+1. request
+2. response
+
+* Note: Protocols
+	* Set of rules
+		1. what type of msgs
+		2. how msgs will be formed
+		3. what will be done when msg received
+
+* GET, POST, PUT, DELETE
+
+==== REQUEST ====
+* Request line + header lines
+* Each lines ends with carriage return (\r) and line feed (\n)
+
+```
+GET /index.html HTTP/1.1\r\n
+Host: <domain>\r\n
+User-Agent: <info about client>
+Accept: <object types>
+Accept-Language: <lang>
+Accept-Encoding: gzip,deflate\r\n
+Conection: keep-alive\r\n
+\r\n
+```
+
+* First the connection is made with the server, then this message is sent
+```
+$ nc -c -v gaia.cs.umass.edu 80
+> GET /kurose_ross/interactive/index.php HTTP\1.1\r\n\r\n
+```
+
+* Each layer of the TCP/IP Stack adds its own headers to the data as we go down in abstraction
+* Application -> Transport -> IP -> MAC -> Physical
+* Time to live: number of routers to go through to find the destination. if the num exceeds, the packet dies

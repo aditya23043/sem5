@@ -1,0 +1,125 @@
+= Lectrue 3 =
+* Throughput = smallest link in the path (kind of like pipeline in CO)
+
+= TCP/IP Stack =
+* Application : HTTP
+* Transport (end to end) : TCP, UDP
+* Network (host to host) : IP, routing protocols
+* Link
+* Physical
+
+== Application Layer ==
+* Stuff accessed through browser = application
+* Application Layer Protocols: HTTP, SMTP, DNS, IMAP, CDNs, Webservices, Microservices, P2P applications
+* What is expected from the layer underneath? assumptions? stuff is abstracted in the layers beneath
+	* We are not concerned about their implementation
+	* We just need the API for communicating with those methods/functions
+* Security was not implemented when network was created
+	* If certain functionality is not provided by the layer below, we can implement it ourself
+	* Eg: http -> https
+* When we create an application, we need to keep in mind that it will run on end systems
+	* Not worried about services in between
+	* Assumes some services are provided and uses those
+	* No need to worry about switches, how packets are moving, etc..
+
+== Paradigms ==
+
+=== Client-Server Paradigm ===
+* No permament client / server
+* Typically servers are big machines because it needs to handle multiple reqs usually
+* But client/server cannot be identified by size
+* If we want to communicate between two systems, both should be ready to listen (should have a *port* open)
+* The client should know the server's *address*
+* Required: 
+	1. Where: Address
+	2. Ready to listen?: Port
+* Address should be:
+	1. Reachable: Same network
+	2. Searchable: Should be in the DNS Resolver
+* Server:
+	* Always-on hot
+	* Typically permanent IP Address (can also have dynamic IP address if we have a good DNS resolver)
+	* Often in data centers, for scaling
+* Client:
+	* contact, communicates with the server
+	* may be intermittently conected
+	* may have dynamic IP address
+	* do not communicate directly with each other
+* Since most clients have dynamic IP Addresses, servers don't initiate communication
+
+==== Problems ====
+* Clients cannot talk to each other and hence every communication happens through server
+* Server becomes a bottleneck (also a single point of failure along with speed bottleneck)
+* Servers cannot initiate with servers
+
+=== Peer-to-Peer Architecture ===
+* Both have to be ready at the same time
+* both the devices should know each other's address beforehand
+* Unlike a server, the devices can shutdown in between a communication and could also change address on reboot
+* Eg: BitTorrent
+	* Lets say we have a file on single device
+	* We divide that into chunks and distribute among other devices
+	* And then those "clients" become servers and they can share those chunks between each other
+* *IP addressing is complex*
+* Robustness is high
+	* Devices can go down but we can still have devices on the network
+* Self scalable
+* Skype starts with client-server for connecting and then switches over to P2P
+
+> ![Extra]
+> PubSub: Publish Subscribe Service
+> Used by WhatsApp
+> Server = Lightweight
+> Provides Relay
+> PubSub knows address of devices but they themselves dont know each other's addreses
+
+== Sockets ==
+* IP addr + port
+* Process sends/receives messages to/from its socket
+* Abstraction 
+* We can send/receive or even both
+
+== Address ==
+* identifier for communication
+* a unique 32 Bit address assigned to host
+* Spoofing is done by sending packets to different address
+* for communication, both, IP Address and Port number should be there
+* Eg: HTTP -> 80, Mail -> 25
+* Processes can have port numbers assigned to them; Eg: Immich:Redis
+* Ports should be unique within a system
+
+> MQTP : Message Queueing Transfer Protocol
+> Eg: RabbitMQ
+
+== Application Layer *Protocol* ==
+1. Types of msgs exchanges. Eg: HTTP GET,PUT,POST
+2. Message syntax. Eg: HTTP GET should have a header and data in bytes after that
+3. Message semantics. Eg: HTTP content-length defines then number of bytes in each msg body
+4. Rules
+
+=== Type of protocols ===
+* Open Protocols
+	* Eg: HTTP, SMTP
+* Proprietary Protocols
+	* Eg: Skype, zoom, WhatsApp
+
+== What transport service does an application need? ==
+* Data integrity
+	* Eg: 100% reliable data transfer whereas some video/audio streaming protocol can tolerate some packet losses
+* Timing
+	* Eg: minimum bandwidth required for managing delays
+* Throughput
+	* Eg: For videos, we need some minimum throughput threshold
+* Security
+
+== Transport Protocol Services ==
+
+== TCP ==
+* Reliable transport: 100% data reliability (no packet loss)
+* Does not provide timing, throughput, security guarantee
+* Imp Note: reliability != security
+
+== UDP ==
+* Unreliable data transfer
+* Does not provide: reliability, flow control, congestion control, timing, throughput guarantee, security, or connection setup
+* Simplest Implementation

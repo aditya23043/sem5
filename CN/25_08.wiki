@@ -1,0 +1,59 @@
+> HEAD Method: Requests headers only without data
+
+= HTTP Response status codes =
+200 ok
+301 moved permanently
+400 bad request (msg not understood by the server)
+404 not found
+505 http version not supported
+
+What if HTTP was not stateless?
+* User data can be stored (not related to server login)
+
+= Cookies/Etag =
+* How to have persistent data in a stateless protocol like HTTP?
+* We require a Unique User ID or whatever data we require
+	1. Who saves it
+		* Server: because multiple clients might connect to the server and the client doesn't know if the Unique id is truly unique
+	2. How to save it
+		* In the response, the server sends the ID along with other data to the client
+	3. How to use it
+		* Whenever the client connects to the server next, the client sends whatever data/id it received earlier 
+
+	* Problems
+		* Experience ruined for other users of the system since the server assigns id based on the system and not by the user
+
+* Advantage: Client doesn't have to store much
+* Note: Protocol is still stateless. Cookies are implemented at the server side only
+* Cookies = Tracker
+
+1. First Party Cookies: Track user behaviour on a given website
+2. Third Party Cookies: Track user behaviour across multiple websites without user choosing to visit tracker site
+
+= EU GDPR =
+* General Data Protection Regulation
+* Because of this, servers now ask for permission to store cookies
+
+= Challenges of Cookies =
+* Higher network traffic
+* If multiple people on the same network request cookies from the same server, they all will get the data separately even if it was the same data across all those clients
+
+* The data across the internet almost never goes directly from the server to the client
+* It passes through ISPs, network switches, routers, etc
+* You either increase data bandwidth (pricey) or implement some optimizations in your local network
+* Optimization for our own network: 
+	* If the packets are for the same system and are same, we should do something like how zip files do and save common data 
+	* Maintain a cache so that the clients don't have to request the server for the same data again and again
+	* Now don't even hit the local intelligent server for cache, also store cache on the browser level and if the browser doesn't has the data then go above
+* Note: LRU policies same as OS
+* Problems:
+	* If data has been changed at the server level but the cache has not been updated
+	* Cache is small in size
+	
+* Solution:
+	* Instead of asking for the whole data, just verify by the server if the data has been updated (checksum)
+	* Additional field i HTTP protocol -> if-modified-since: <date> 
+	* Same protocol but v good optimization
+	* Algo goog ? (# hit) > (# miss)
+
+* The gateway = Proxy server
