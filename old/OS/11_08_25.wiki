@@ -1,0 +1,38 @@
+= Operating Systems =
+
+> [[https://www.cse.iitb.ac.in/~mythili/os/|Reference Link]]
+
+* Classroom code: y6okogog
+* Book: Operating Systems: Three Easy Pieces [[https://pages.cs.wisc.edu/~remzi/OSTEP/|(Book)]]
+* Evaluation
+	* Quiz x 4 -> 10% (Best 3 out of 4)
+	* Assignments x 4 -> 35%
+	* Midsem: 20%
+	* Endsem: 35%
+
+= lecture 1 =
+* Manages hardware (CPU, memory, IO)
+
+== How to run a program ==
+* A compiler translates high level programs into an executable (.c -> a.out)
+
+* fetch instruction pointed at by PC from mem
+* loads data required by instruction into registers
+* decodes and executes instruction
+* stores results to memory
+
+== OS manages ==
+* CPU
+* Memory
+* Interface with IO devices
+* Concurrency
+* Virtualization
+
+== STUFF == 
+* getpid() -> returns process id
+* assert
+* Spin(int second) -> sleep for [second]
+
+* Dummy Address (Memory Virtualization)
+	* Real address behind it might be different
+	* Isolated to the current process

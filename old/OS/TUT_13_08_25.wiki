@@ -1,0 +1,2 @@
+= Makefile =
+* Objects in a makefile are built in a bottom-up order

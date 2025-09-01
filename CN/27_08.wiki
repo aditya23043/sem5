@@ -1,0 +1,142 @@
+= Web Caches =
+* Web caching servers = Proxy servers
+* HTTP 304 Not Modified
+* if-modified-since: <date>
+* if modified : HTTP 200 (ok) + Data
+* else: HTTP 304 (not modified)
+* All this implemented in HTTP1.1
+
+= Problem =
+* Server responds in a FIFO/FCFS (first come first server)
+* this is fine if the size of the objects is same
+* but if its irregular, we have HON Blocking / Line of head blocking
+* Eg: we have a very large video and then a small text. the vid takes quite a long time while the text can be processed quickly
+
+= Solution: HTTP2.0 =
+* Divide the data in smaller chunks/frames
+* Not implementing FCFS
+* Use algos like round robbin etc
+
+= HTTP/2 to HTTP/3 =
+* Recovery from packet los still stalls all object transmissions
+	* Some download managers give faster download speeds by opening multiple parallel HTTP connections in the background and then piecing together the data at the end
+	* this is done to reduce stalling, increase overall throughput 
+* No security over default TCP connection
+	* HTTP/3 adds security, per object error and congestion control (more pipelining) over UDP
+	* Note: UDP is very quick. TCP is quite slower wrt UDP and with many more functionalities.
+
+= SMTP =
+* Simple mail transfer protocol
+* IETF: Internet engineering task force
+* RFC: Request for comment (txt file with new protocol's semantics and info)
+* All protocols have one or many RFCs
+* SMTP had come before HTTP
+* Mail servers
+	* Mail box
+	* message queue
+* How does it work?
+	* Uses TCP to reliably transfer mail
+	* Default Port: 25 (unsecured)
+	* Sender's mail is sent first to the sender's mail provider's servers and then that contacts the receiver's mail provider's server and then that mail is sent to the receiver's client once then the client PULLS the mail from their server
+	* Push Email
+* Direct transfer
+	* sender (client) -> Sending STMP server (acts like client) to receiver SMTP server <-> PULL req from receiver (client)
+* Three phases of transfer
+	* SMTP Handshake (greeting)
+	* SMTP transfer of messages
+* Default code for all good -> *220*
+* Command name for greet/handshake: HELO
+* "Server" replies back 250 HELO
+* The whole protocol is carried out even if both the receiver and sender are on gmail
+* telnet smtp.gmail.com 25
+
+```
+  adi@Adityas-MacBook-Air ~/Developer/Repo/sem5/CN (main)
+  ❯ telnet smtp.gmail.com 25
+Trying 74.125.130.109...
+Connected to smtp.gmail.com.
+Escape character is '^]'.
+220 smtp.gmail.com ESMTP 98e67ed59e1d1-3274194ab8asm1492306a91.5 - gsmtp
+HELO SMTP.GMAIL.COM
+250 smtp.gmail.com at your service
+MAIL FROM <aditya23043@iiitd.ac.in>
+530-5.7.0 Must issue a STARTTLS command first. For more information, go to
+530-5.7.0  https://support.google.com/a/answer/3221692 and review RFC 3207
+530 5.7.0 specifications. 98e67ed59e1d1-3274194ab8asm1492306a91.5 - gsmtp
+starttls
+220 2.0.0 Ready to start TLS
+Connection closed by foreign host.
+```
+
+* HTTP : Client pull
+* SMTP : Client push
+* SMTP uses persistent connections
+
+== IMAP ==
+* SMTP only sends mail till the receiver's SMTP server and not till the user-agent / client of the receiver
+* We use IMAP to retrieve the mails / msgs
+	* IMAP can do retrieval, deletion and creating folders
+* IMAP : Internet Mail Access Protocol
+* POP3 was used earlier
+	* POP3 had issues with syncing with multiple client devices
+
+= DNS = 
+* Domain Name System
+* Translation service: Natural Language -> Machine Address
+* Also locates the service
+* does the mapping between the IP address and domain name
+* And yes, this is an application layer protocol
+* distributed solution instead of a centralised solution 
+	* Single point of failure
+	* traffic volume
+* Core inernet function but internet can work without it
+* How would we implement?
+* Local DNS Server Address is configured when a system is installed with a new OS
+* That Server has a list of mappings for IP and name
+* If that server doesn't has the required mapping, it knows who to ask further
+
+* Root DNS Servers
+	* .com DNS servers
+		* yahoo.com
+		* amazon.com
+	* .org DNS servers
+		* pbs.org
+	* .edu DNS servers
+		* nyu.edu
+		* umass.edu
+
+* Root servers -> Top level domain servers -> Authoritative servers -> ... -> Local DNS -> Browser level DNS
+* Caching is done at all levels to reduce latency as much as possible
+* LRU: Least recently used
+
+== DNS Records ==
+* Resource Records (RR) format:
+	* name
+	* value
+	* type
+	* ttl
+TTL: Time to live
+
+== how to implement DNS ==
+* Two ways
+
+=== First === 
+* Lets say you want to visit www.umass.edu
+* You ping umass.edu DNS
+* It pings .edu DNS
+* then that pings Root DNS
+* then it returns the IP to .edu -> umass.edu DNS then back to you
+
+=== Second ===
+* Same example
+* You ping umass.edu DNS
+* It doesn't know then it returns you the address of .edu DNS 
+* If that doesnt have the mapping, it returns the address of the Root DNS
+* Then that returns the mapping
+
+=== Final Solution ===
+
+* The second approach is preferred because the overhead on those servers is less because they don't need to be kept blocked until the resolution has been done by the DNS servers above
+* And also, client can cache the addresses of even the topmost root dns server and ping it directly next time
+* Second approach saves resources
+* Frees the servers immediately

@@ -1,0 +1,16 @@
+= Introduciton to the Principles of effective Technical Writing =
+* Cannot be opiniated
+* Not creative writing
+* Should be factual only
+* Clarity, Precision, 
+* Hedge: Unclear
+	* Hedging means taking both sides, thus taking no chances of absolute failure
+	* "this might mean.."
+	* "these findings might mean this"
+	* demonstrate that you are only 50% correct
+
+= Evaluation =
+* Review Essay (group, assignment) 25% 
+* Summary (individual, in class) 30%
+* Poster (group, assignment) 25%
+* Class Test (quiz)  20%

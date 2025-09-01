@@ -1,0 +1,8 @@
+= Socket Programming =
+clientSock = socket(AF_INET, SOCK_DGRAM)
+clientSock.sendto(<msg>.encode(), (srvr_addr, srvr_port))
+
+serverSocket.bind('', serverPort)
+
+SOCK_DGRAM -> UDP
+SOCK_STREAM -> TCP

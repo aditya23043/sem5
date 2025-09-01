@@ -1,0 +1,7 @@
+= The three pass approach =
+
+* Read the paper in up to three passes instead of starting at the beginning and plowing your way to the end
+* Eadh pasta accomplishes specific goals and builds upon the previous pasta
+* 1st pass: general idea about the paper
+* 2nd pass: lets you grasp the paper's content but not the details
+* 3rd pass: understand the paper in depth

@@ -1,0 +1,114 @@
+= DNS =
+
+* We looked at two ways of querying dns, both do caching
+* Iterated Query and Recursive Query
+* TTL : time to live
+* For how long do we need to keep the entry in the cache
+
+== DNS FORMAT ==
+* DNS query and reply msgs have same format
+
+== DNS Security ==
+* DNS works over UDP
+* Send a query, don't get a response? send the query again
+* Not secure
+* No overhead
+* Became a big target for attacks
+
+== DDoS Attacks ==
+* Bombard root servers with traffic
+* Cache clears because server getting bunch of new requests
+* Genuine requests facing delays because of DNS is handling bogus requests
+
+== Spoofing Attack ==
+* Intercept DNS queries returning bogus replies
+* DNS Cache poisoning
+
+== Bombard TLD Servers ==
+* Much more dangerous
+
+= P2P Applications (will not come in exam) =
+* Server is a single point of failure or if not then congestion, hence some applications switched to p2p
+* Eg: file sharing (BitTorrent), streaming (KanKan), VoIP (Skype)
+
+== BitTorrent ==
+* Torrent is a file which contains info about the other senders
+* File divided into 256KB chunks and peers send/receive file chunks
+
+== Netflix ==
+* They can't do like BitTorrent
+* They cannot give you the actual data
+* Solution: CDN
+* CDN Servers distributed all across the globe
+* They tweak their recommendations as per the locations
+* CDN: Content Distribution Network
+* Netflix stores copy of content in the CDN Servers
+* Clients stream stuff from these CDN Servers
+
+== CCN ==
+* Content Centric Network
+* Instead of Ip Address, search for the content
+
+> Application Layer Dones
+
+= Transport Layer = 
+* Principles
+	* Multiplexing, Demultiplexing
+	* Reliable Data transfer
+	* flow control
+	* congestion control
+* Protocols
+	* UDP: connectionlesss transport
+	* TCP: connection-oriented reliable transport
+		* TCP Congestion
+* Transport communication = Logical communication between application processes running on different hosts
+* Transport layer is end-to-end
+
+== UDP ==
+* User Datagram Protocol
+* "Best effort" service
+* bare bones
+* Segments may be lost or delivered out of order
+
+=== Connectionless ===
+* No handshaking between sender and receiver (so reduced RTT: round trip time)
+* each UDP segment handled independently of others
+* Simple -> no connection state
+* Small header size
+* no congestion control
+	* UDP can blast away as fast as desired
+	* can function even in congestion
+
+=== Segments ===
+* Client should have 
+	* the server's address and port
+	* a port available to send the data from
+	* a "length" flag as well to keep record of the number of bytes in the packet
+	* a checksum to confirm data integrity
+
+* Finally, these things required:
+	* source port # (16 bit)
+	* destination port # (16 bit)
+	* length
+	* checksum
+	* Application data (payload)
+* The ports have a 16 bit identifier and hence we can have about 64,000 parallel connections on any system
+* We can have variable length but it brings complexity since we need some bits to identify when the checksum is ending and when the payload begins
+* In the fixed sized protocol, we know that the payload begins after 64 bits whereas in variable width data, we need to pass additional info regarding the size of each part 
+* Used in
+	* Streaming multimedia apps
+	* SNMP
+	* DNS
+	* HTTP/3
+		* If reliability needed, add congestion control and reliability at application layer
+
+=== UDP Checksum ===
+* Need to choose a simple function in order to handle packets as efficiently as possible
+* Treat the contents of UDP Segment (including the header (without checksum)) as a sequence of 16 bit integers
+* have a checksum like one's complement sum of each 16 bit sequence of segment content
+* Even if some bits are corrupted, still the payload is passed onto the application layer because the cost of getting 100% reliability is very high
+* If the data is actually corrupted, it will be discarded in the application layer
+
+= Multiplexing / Demultiplexing =
+* From the transport layer, we add headers at each level and keep on trimming down the packet on the receiver's side as the packet goes up the tcp/ip stack
+* Like, at the application layer, we do not need the Physical MAC address and hence it is trimmed out at the IP layer
