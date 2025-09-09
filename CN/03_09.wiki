@@ -1,0 +1,71 @@
+= Reliable Data Transfer Protocol (rdt) =
+* Assume a system in which we set a timeout on the client side after which the client re-sends a connection request to the server after no response
+* If the server faces a network delay and the packet is sent after the timeout, the client doesn't know which response relates to which request
+* The server doesn't know if the response is received by the client
+* TCP handshake is a three-way handshake
+* Two-way is not enough and Four-way is redundant
+* Complexity of reliable data transfer protocol depends on the characteristics of unreliable channel (lose packets, corrupt, reorder data?)
+* TCP = Rolls Royce
+
+ = RDT 1.0 =
+* *Assumption*: Underlying channel is perfectly reliable
+	* No bit error / packet loss
+* Nothing needs to be done
+* Separate FSMs for sender and receiver
+* eg: UDP
+
+= RDT 2.0 =
+* *Assumption*: Channel with bit errors
+* Underlying channel may flip bits in packet
+* Use checksum to detect bit errors
+	* Assume checksum can detect bit errors
+* Receiver says, "Ayein, phir se bolo"
+	* The sender is keep on transmitting
+	* What to repeat?
+	* How much to repeat?
+
+* *Stop and Wait* Protocol
+	* Sender sends one packet and waits for receiver's response
+
+== How to recover from bit errors ==
+* Acknowledgement (ACKs)
+	* Receiver explicitly tells sender that packet received is ok
+* Negative Acknowledgement (NAKs)
+	* Receiver explicitly tells sender that packet had errors
+	* Sender re-transmits on NAK
+
+== Flaw ==
+* If ACK/NAK get corrupted
+* Sender can't send again
+	* Could result in duplicated packets
+
+== Solution ==
+* Just send NAK on bit error and no ACK in case of a good packet
+	* Not feasible since it is a "stop and wait" protocol and the sender waits for the msg
+	* If we set a timeout instead, we face the same problem as before
+* Assign a unique ID / sequence number to each packet
+	* The receiver can compare the ID of the packets received and if sent ACK and received same ID, just ignore the current packet
+	* Header now becomes: Port, Port, Length, Checksum, Sequence
+
+= RDT 2.1 =
+* Discussion
+* Two sequence numbers for the current and previous packet seq #
+* To check if we receive repeated NAK
+* Only one bit of overhead over RDT 2.0
+* If the xor of the 2 sequence number = 0, then the packets are duped
+
+= RDT 2.2 =
+* NAK-free protocol
+* Receiver sends only ACK for the last successfuly received packet
+* Receiver must explicitly include seq # of packet being ACKed
+* Duplicate (ACK + seq #) means NAK and hence retransmit required
+
+= RDT 3.0 =
+* *Assumption*: Channel with errors and loss
+* Packet may not arrive at all
+* Checksum, seq #, ACKs will help but not enough
+* Additional parameter required is: timer
+* Implement timer at the sender side
+* Even if the ACK came in late after the timeout, the Packet had a sequence attached to it and receiver will just discard it
+
+Quiz next week wednesday 9:45
