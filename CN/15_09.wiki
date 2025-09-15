@@ -1,0 +1,99 @@
+= TCP =
+
+== RDT 3.0: Channel with errors and loss (STOP and WAIT) ==
+* Assumption: Channel can lose packets (data, ACKs)
+* Lets say, sender sends packet but ACK packet from receiver gets lost; so the sender is waiting for the receiver to send ACK #<seq>
+* Or even the sent packet is lost; so the receiver is waiting for the sender to send something
+* Hence, we need a timeout at the server level
+* Receiver needs to send an ACK even if the received packet is a dupe of the previous one in order to move the transmission to the next packet otherwise the server will keep sending the same packet again and again after timeout
+
+=== Working ===
+* If packet #0 is lost, server waits till ACK or timeout and then resends packet #0
+* If ACK achieved, send next packet
+* If timeout hit, Send packet #0 again
+* repeat whole process
+* If pkt was just delayed and not lost, we still have checksum implemented so the receiver can just discard it
+
+* Now what if ack1 (acknowledge) gets delayed?
+* Even then if packets sent are duplicate, the receiver can just discard them
+
+* Correct Protocol
+* But not efficient
+
+* (x) packet loss handled
+* (x) bit error handled
+
+=== Performance ===
+* U_sender = utilization: fraction of time sender busy sending
+
+eg:
+Link = 1 GBps
+Packet = 8000 bits
+
+Transmission delay = 8000 / 10^-9 = 8 us (time to setup bits for propagation)
+lets assume T_propagation ~ 0
+
+For sending 8000 bits: time taken = RTT + (L/R) = RTT + D_transmission
+
+Sender is busy for (L/R) time out of ((L/R) + RTT)
+that is the U_sender i.e. the utilization time
+
+U_sender = 0.008 / 30.008 = 0.00027 (very bad)
+Solution: Sender should send more packets
+
+Lets say we send 3 packets for which we get only one ACK so, U_sender = 3 * 0.00027 (much better)
+
+more general, how about sending n packets before waiting for ACK
+
+problem: if we have a loss, we dont know which packet was lost and will have to resend all n packets
+we need to decide if we want only one ACK for those n packets or n ACK
+
+
+=== Pipelined protocol: Go-Back-N ===
+* Sender allows multiple "in-flight" yet-to-be-acknowledged packets
+* number of ACKs = n
+* Sequence number should be increased to be count all packets (earlier it was one bit)
+* need buffers at both ends
+
+let sequence number go up to size n so 2^n can be counted at once
+let number of packets: w = 4
+what if we receive only ACK for 0, 1; hence we need a buffer to keep track of received ACKs
+
+when we receive ACK, we slide the window forward but keep in mind that 2, 3 are already sent and waiting acknowledgement but 4, 5 are still to be sent now and 6, 7 are not yet considered (not in the window)
+and that 0, 1 are already acknowledged
+
+ideally, w should be large but we need to also consider packet loss and so we might have to re-transmit all w packets
+also, w < 2^n (wrong, see ahead)
+
+Assuming ACKs are coming in order
+
+the timer is set for the oldest packet (1st packet) then what?
+soln : we can set timer for each packet separately
+
+if we dont receive ACK for a packet lets say, packet #x in the timeout
+we need to resend all the packets from x to the end of the window again
+
+if the ACK does not come for the oldest packet, the whole window needs to be re-transmitted
+hence we need to find the value of N meticulously
+
+U_sender = (n*(L/R)) / (RTT+(L/R))
+
+=== Selective Repeat ===
+* If there are some packets missing, resend only those packets instead of the whole window
+* When we receive ACK for packets other than the oldest in the window
+* No choice other than *Buffering*
+* Send ACK for all received packets (earlier we didnt sent ACK for those received in wrong order)
+* We have to wait for the window size to be in order
+* Till then the wrongly ordered packets are buffered
+* Problem: how will the receiver keep track of the packet sequence?
+
+* Major Problem (Overlap)
+	* What if window size = 3 and seq # of size 2 so 0,1,2,3 sequence numbers
+	* what if 0,1,2 are sent and ACK is sent from receiver but lost in between
+	* So, sender hits timeout and then retransmits 0...
+	* But the receiver will accept packet #0 because the window had moved and was expecting any of 3,0,1 and it is buffered
+	* Condition to prevent this: w <= 2^(n-1)
+	* *Try to prove it*
+* Stuff used: seq#, checksum, timeout, ACK
+* Can reliably transfer in an unreliable transfer
+* Stop and Wait also relaible even though not efficient
