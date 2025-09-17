@@ -1,0 +1,134 @@
+* Stuff needed till now for reliable data transfer:
+	* Sequence Numbers
+	* Acknowledgments
+	* Re-transmission
+	* Timeout
+	* Checksum
+
+* How do we use these in TCPs to make the protocol efficient (but not complex)
+
+= TCP =
+* TCP is a point-to-point protocol One sender, one receiver
+* Reliable, in-order byte
+	* No bit errors/flips
+	* Ordered (sequential)
+	* no packet losses
+	* Security, speed not part of this
+* Fully Duplex
+	* Bidirectional simultaneously
+	* While sender is sending, receiver might also be sending at the same time
+	* "Stop and wait" was half duplex
+	* simplex means only one sided communication
+	* if it was simplex, 2 connections would be necessary for communicating between both
+* MSS: Maximum Segment Size
+	* Window size i.e. the number of packets in one burst
+	* "In networking, MTU (Maximum Transmission Unit) is the largest size, in bytes, of a data packet that can be transmitted in a single network operation without fragmentation."
+	* Ethernet is at Physical Layer
+	%% * MSS = TCP + IP + MTU (wrong)
+	* MTU > MSS + TCP header + IP header
+		* MSS was the TCP data size
+		* MTU is the number of bytes that can be transferred in one segment at the Physical Layer (eg: Ethernet)
+		* TCP counts in number of bytes (not number of segments) because we can have multiple physical links between sender and receiver and TCP can only know number of bytes transferred and not number of segments
+* Layers
+	* Application
+	* Transport
+	* TCP
+	* IP
+	* MAC/Physical
+Physical layer should be able to transfer: IP header + IP data (TCP header + TCP data)
+
+* Cumulative ACKs
+	* ACK is sent for a bunch of bytes instead of for every byte
+
+* Pipelining and Flow Controlled
+	* TCP has congestion and flow control
+	* How can sender know how much bytes receiver can receive
+	* TCP sends one request asking for how much bytes can be received
+
+* Connection Oriented
+	* For sending something, handshaking happens first to initialize connection (virtual connection)
+	* No physical connection has been made (at the TCP layer)
+	* Not like a telephone network
+
+* Speed and security not promised
+
+= TCP Segment Structure (Header format) =
+* Source port # (16bit)
+* Destination Port # (16bit)
+ 
+* Sequence Number (32bit) : keeps track of number of bytes transferred (not # of segments) ( seq #0: 0-999, seq #1: 1000-1999, seq #2: 2000-2999...)
+ 
+* Acknowledgment number (32bit) : either reply with the last byte # correctly received or the next byte expected
+ 
+* Length (of TCP header) (4bits) : size of header in bytes 
+	* With 4 bits, we can have 0 -> 15 numbers only
+	* Size of header in bytes will be the value of these parameter multiplied by 4
+	* This param is used because we also have 32 bits for options (variable length)
+* Not used (4bits) : left for future use
+* C (1bit) : Congestion notification : It tells if there is congestion ahead or not (`In practice, not used`)
+* E (1bit) : similar to C (`in practice, not used`)
+* U (1bit) : indicates if there is a valid value in "Urgent Data Pointer" field (`in practice, not used`)
+* A (1bit) : indiciates if there is ACK along with data or even pure ACK but is set 0 in case of only data
+* P (1bit) : priority data (priority not defined, `in practice not used`)
+* R (1bit) : Reset; if something wrong is happened
+* S (1bit) : indicates if this is the first message i.e. beginning of sequence (seq #0) [imp]
+* F (1bit) : If we want to close the TCP connection (last message)
+* Receive Window (16bit)
+ 
+* Checksum (16bit)
+* Urgent Data pointer (16bit)
+
+* Options (variable length) (32bit)
+
+== Extra Notes ==
+* If sender received ACK3000, it will assume 3000bytes were transferred correctly even if ACK1000 or ACK2000 not received since receiver will not send ACK# until it has received till those bytes
+* TCP does *piggy-backing*
+	* TCP combines ACK for the last msg with the data to be sent next
+	* If no data is left to be sent, pure ACK is sent
+* Header length
+	* Max: 60 bytes
+	* Min: 20 bytes (5 rows compulsory, 4 bytes per row i.e. 32bits)
+* No need for data length parameter because we know MTU after which IP header and TCP header length is subtracted; remaining is TCP data length
+* MSS is sent through Options usually
+
+= 2 way communication =
+* Problem : Half open communication
+* ACK comes after connection request sent
+
+= TCP uses 3-way communication = 
+
+Note: SYNbit = S in the header format
+* SYNbit = 1, seq = #x ( my byte numbering will start with x ) : sender -> receiver
+* SYNbit = 1 (ready to connect), Seq = #y ( my byte numbering will start with y ), ACKbit = 1, ACKnum = x+1 : receiver -> sender
+* ACKbit = 1, ACKnum = y+1 : Sender -> receiver (SYNbit not required in the 3rd msg of the handshake)
+
+* Sequence number are randomized for security and to avoid an improbable edge case in which packet received well after the connection is closed and re-open on the same port
+
+* *GO HOME* - Sarthak and Pushpendra
+
+== RTT, Timeout ==
+* How do we calculate timeout?
+* Must be longer than RTT; but RTT varies
+* If we wait longer, communication becomes slow
+* If we wait less than RTT, we might be missing most of the responses
+
+=== EWMA ===
+* Exponential Weighted Moving Average
+* Typically, α = 0.125 (alpha)
+* EstimatedRTT = (1 - α) * EstimatedRTT (from previous calculation) + (α * sampleRTT)
+
+```example
+Initially assume sampleRTT; lets say 1s
+and α = 0.5
+E = (0.5 * E_prev) + (0.5 * 1)
+E_prev = 0;
+E = 0.5
+now, E = 0.25 + 0.5 * 2 = 1.25
+```
+
+* Historical observations hold more accuracy than immediate results
+
+* TimeoutInterval = EstimatedRTT + ( 4 * DevRTT )
+	* Note: DevRTT = safety margin (Deviation RTT)
+	* DevRTT = (1-β) * DevRTT + (β * | SampleRTT - EstimateRTT |)
+	* typically, β = 0.25
