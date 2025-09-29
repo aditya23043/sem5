@@ -1,0 +1,5 @@
+Duplicate	03_09.wiki	/^* Duplicate (ACK + seq #) means NAK and hence retr/
+ack1	15_09.wiki	/^* Now what if ack1 (acknowledge) gets delayed?$/
+control	27_08.wiki	/^	* HTTP\/3 adds security, per object error and con/
+request	25_08.wiki	/^400 bad request (msg not understood by the server)/
+with	23_08.wiki	/^* first request from the client just requests for /

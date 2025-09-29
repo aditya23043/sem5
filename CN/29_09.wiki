@@ -1,0 +1,125 @@
+
+* After Midsem
+
+= Cumulative ACK =
+* Till now, we did cumulative ACKs
+* I.e. ACK for each packet in the segment
+* But this will result in a lot of ACKs
+* So, instead of sending ACK immediately, it waits for 500ms (timeout at the receiver) for another packet to come and if it arrives, just send ACK for the new one since if Ssender received ACK for a newer packet and not an old one, it can safely assume that the previous packets were received correctly
+* Works only if packets are coming in-order
+* Lowers overhead
+* Immediately send single cumulative ACK if in-order packets arriving and other packet's ACK is pending
+* Immediately send same duplicate ACKs if arrival out-of-order segment higher-than-expect seq # in order to let the sender know that some error has occured
+	* Eg: if #101, #201, #301 were sent but received only #101, #301; receiver will send back ACK#101 twice in order to let the receiver know that dupe ACK came that means  gap detected
+* Sender's Sequence number is the starting number of the segment
+* And what receiver's expecting next segment's start # will be the ACK<#seq>
+	* Eg: If sender sends from 92th byte and sends 8 bytes, Sender's seq#92 and reciever's ACK will be ACK#100
+* Delay happens if timeout is too long or too short
+* Intermediate routers have no visibility. Only context being given is through packet headers
+
+= Optimization 1 =
+* If 2 Duplicate ACKs are received, wait for the timeout before sending the missing packet
+* but if 3 are recieved, send immediately
+* these numbers found by performing imperical calculations; no other specific reason
+
+* If Ack not received, TCP assumed it must be due to congestion so,
+* Every time timeout is hit on the sender side, it doubles the timeout
+* In order to prevent further congestion
+
+= Flow Control =
+* 16 bit ~ 65,000 possible combinations
+* Flow control not related to network / network speed
+* It depends on the reciever's capacity of receiving data
+* Rate of consumption of data from transport layer to application layer
+* Application removing data from the TCP socket buffers
+* Control sender's sending speed in accordance with reciever's capacity 
+* so that sender won't overflow receiver's buffer by transmitting too much too fast
+
+== How? ==
+* Receive window flag in the TCP header (rwnd : receiver window)
+* number of bytes receiver is willing to accept
+
+* What if receiver is full and cannot process anything for some time? 
+* does it send 0 as the rwnd? NO
+* It sets rwnd as 1
+* sender keeps on sending 1 and receiver keeps on discarding and the timeout doubles each time
+* this is the worst case scenario but still better than re-implementing the protocol or facing deadlock
+* cannot add some rules like sender asking the receiver if it can process bytes now
+
+= Closing a TCP connection = 
+* sender sends FIN = 1 to receiver
+* receiver acknowledges
+* receiver sends FIN = 1 to sender
+* sender acknowledges
+* connection closed
+
+= Congestion Control =
+* Fully related to network unlike flow control
+* too many sources sending too much data too fast for the *network* to handle
+* Results in: long delays (queueing in router buffers), packet loss (buffer overflow at routers)
+* Network is very decentralized
+* No one can control how much I am sending
+
+== Simple scenario ==
+* one router, infinite buffers
+* input, output link capacity = R
+* two flows
+* no retransmissions needed
+* two senders to two separate receivers
+* if λin -> R/2 , delays increase exponentially
+
+== Scenario 2 ==
+* we cannot have infinite buffers
+* sender re-transmits lost, timed-out packets
+* λin = λout
+* transport layer input includes retransmission delay
+* could result in un-needed duplicates
+
+== Scenario 3 ==
+* at some point, packets or retransmission coming but being dropped
+* output throughput , λout -> zero at some point
+* but still network keeps on re-transmitting
+
+> Congestion is not only about reducing rate, it can bring the whole network down
+
+Whenever TCP detects congestion, it regulates itself
+
+eg: if sender was sending 10MSS
+if it faces  congestion, it keeps on reducing MSS every time
+over time, congestion clears out because of the reduced speed
+by how much it should reduce, we will try to find out
+we dont want it to slow down by a lot or not go slow at all
+
+How does it detect if there is congestion?
+If the ACKs are not being received
+1. Timeout
+2. Duplicate ACK
+or if the C bit is set in the packet header (rare)
+
+ATM: Asynchronous transfer mode
+came as a replacement for TCP/IP
+but didnt work because TCP already works
+
+= TCP Congestion Control: AIMD =
+* Approach:
+	* sender keeps on increasing sending rate until packet loss (congestion) then decrease (suddenly, very quickly) sending rate on loss event
+	* Saw-tooth pattern
+	* https://www.researchgate.net/publication/303686766/figure/fig1/AS:367785067728899@1464698201456/A-line-graph-showing-the-default-Saw-Tooth-behaviour-of-the-TCP-Protocol-with.png
+	* Additive increase:
+		* Increase sending rate by 1 maximum segment size every RTT until loss detected
+	* Multiplicative decrease:
+		* Cut sending rate in half at each loss event
+	* AIMD: Additive Inverse; Multiplicative Decrease
+	* Distributed, Asynchronous algorithm
+
+* How does it detect if there is congestion?
+	1. Timeout
+	2. Duplicate ACK (triple)
+* Timeout is a worse condition because it is not even receiving ACKs
+
+== TCP Tahoe ==
+* Cut sending rate to 1 MSS (max segment size) when loss detected irrespective of whether it was due to timeout or dupe ACKs
+* simple but too conservative
+* So now, congestion is divided into two types: bad (dupe ACKs) and very bad (timeout)
+* for very bad congestions, keep this algo i.e. cut to 1Mss
+* but for bad congestion, divide sending rate to half in case of triple ACKs
