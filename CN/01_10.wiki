@@ -1,0 +1,85 @@
+* No need to send address at the transport layer because that is done by the network layer
+* Length also not there because length is known before time
+* Senders control their sending rate if there is suggestion
+* Congestion = either timeout hapenned or 3 dupe ACK received
+* Congestion Avoidance phase: limits its rate to avoid congestion
+* TCP : Tahoe (much simpler) and Reno
+* TCP uses multiplicative decrease and additive increase
+* Controls the MSS/RTT rate
+* Cubic TCP uses this multiplicative decrease method of reno but differs in additive increase
+
+= TCP slow start =
+* Imagine handshake is done
+* Initially, (client_window) cwnd = 1 MSS
+* Suppose ACK is received for it, double the MSS
+* For each ACK received, increase the window by 1
+* So, we go from 1 -> 2 -> 4 -> 8 -> ... assuming each ACK received successfully
+* thats why its called Additive Increase
+* It keeps a variable, ss_threshold
+* assume it was equal to 1024
+* when the MSS rate reaches this threshold variable
+* At this high rate, consequences of something happenning if something goes wrong is very high, so the window size rate slows down after threshold hit
+* assume we hit 1024 at 10th RTT
+* at 11th RTT, window size becomes 1025 instead of 2048
+* after this, window size increases by 1 only every RTT
+* The phase after SS_Threshold is called *Congestion Avoidance Phase*
+* The phase before SS_Threshold is called *Slow Start*
+* If ss_threshold is too small, it will make the transfer very slow
+* If ss_threshold is too large, it will cause large congestion and will drop to 1MSS/RTT
+* window size = MSS/RTT
+* If we are at 12 Window size (linear region) and receive 3 dupe ACKs (congestion); window size drops to ((12/2) + 3) = 9
+	* The extra 3 is because of the 3 dupe ACKS received
+* On loss event, ssthresh is set to half of the cwnd before loss event
+* so here, `ssthresh` = 12/2 = 6
+* In reality, for plotting the sawtooth graph since the slow start phase is so small, we approximate as linear only
+* Once the speed drops, it takes a lot of time to optimize it back
+* TCP is a conservative protocol
+* No fixed field in header for ssthresh; it is passed through the `option` flag in TCP header
+
+= TCP Cubic =
+* Let W_max = sending rate at which congestion loss was detected
+* Instead of incrementing by 1, ramp up the initial rate faster but then approach W_max slowly
+
+= TCP Fairness =
+* Fair = Resources are divided equally 
+* OR higher priority application gets higher bandwidth? NO
+* if priority is a parameter; it can be misused
+* Eg: Facebook's free internet campaign
+* If K = number of TCP sessions and R is the total rate; each party should get avg rate of R/K
+
+lets say we have 2 connections
+with 80 MBps rate
+the 1st one starts at 30 and 2nd one starts at 10
+Assuming they incrementing by 20
+1st one goes to 50 and 2nd one to 30
+then 1st tries to go to 70 but rate limit hit so it reduces by half -> 25 and 2nd one goes to 50
+then the 1st one increment by 1 whereas 2nd one goes to 70 but limit reached so it reduces by half and then starts incrementing by 1
+even though the 1st one started at a bigger rate, both are optimized for the rate limit and over time the average value comes to R/K (eventually)
+at protocol level, TCP is fair but at the application layer, the application can run many tcp connections to get "priority"
+With respect to network, TCP is fair
+
+
+TLS = Transport Layer Security
+For http/2 over tcp, we have TLS and HTTP/2 at application layer, TCP at transport, IP at network layer
+QUIC runs on UDP
+
+= TCP Throughput =
+* Avg TCP throughput = 3/4 * W (Bps / RTT)
+* Assuming optimized connection.
+* W = after which we are facing congestion
+* so, ssthreshold = W/2
+* the avg of W/2 -> W is (3/4) * W
+
+W/2 + (W/2)+1 + (W/2)+2 + ... (W/2)+W/2
+
+(W/2) * (W/2 + 1) + 2 + (W/2 - 1)
+W2/4 + W + 1
+(3W^2 / 8) + (3W / 4)
+
+= TCP WiFi =
+* WiFi is an unreliable medium
+* It could trigger congestion control even if there is no congestion, its just packet being dropped
+* In TCP, every time there is packet loss, congestion control condition is triggered
+* therefore, TCP is great for a medium where there not much packet loss
+
+SDN = Software defined network

@@ -1,0 +1,149 @@
+* application and transport layer done
+* network layer starting now
+* all routers have network layer implementation
+* til now we did end-end connection; now we look at core networking
+* transport layer does not have address in its header because that is handled by the network layer
+* date plane and control plane
+* data plane handles trimming and joining data for passing it up or down respectively (independent on other routers)
+* control plane handles how the packet will move forward and determine path (dependent on other routers)
+* network layer protocols in every internet device
+* network switch comes after network layer whereas network router is in the network layer
+* level 3 switch = router
+* router examines header fields in all IP datagrams
+* make a decision (process) about which link to pass it to, drop it or buffer it
+* when we said that packets are dropped during congestion, they are dropped in the router
+
+= Functions of network layer = 
+1. Forwarding
+	* gets input
+	* decides which output to pass it to
+	* move packets from a router's input link to appropriate router output link
+	* the action of moving = forwarding
+2. Routing
+	* Determine route taken by packets from source to destination
+	* Algorithm to utilize to reach the destination
+
+* Data Plane
+	* Local; per router function
+	* determines how datagram arriving on router input port is forwarded to router output port
+		* in application layer, we said packet
+		* in transport layer, we said segment
+		* here we say datagram
+* Control plane
+	* network-wide logic
+	* determines how datagram is routed among routers along end-end path from source host to desitination host
+	* Two approaches
+		1. traditional routing algorithm
+			* Implemented in routers
+			* each router has a forwarding table which is like a lookup table which maps which data to pass on to which output port
+		2. software-defined network (SDN)
+			* Software programmable
+			* implemented in remote servers
+			* Remote controller decides which algo to use and computes, installs forwarding tables in routers
+			* logic part has been separated from the execution part
+
+= Network service model =
+* Internet "best effort" service model
+	* No guarantee of bandwidth, loss, order, timing or even delivery
+	* in this, TCP guarantees loss and order
+	* UDP guarantees nothing over this
+
+* ATM Constant bit rate
+	* constant rate bandwidth
+	* guarantees bandwidth, loss, order, timing
+* ATM available bit rate
+	* guaranteed minimum bandwidth and order but no guarantee in loss and timing
+* Internet Diffserv (Differentiated Services model)
+	* implements priority
+	* no guarantee in timing
+	* but possible (maybe?) guarantee in bandwidth, loss and order
+
+= Best effort service model =
+* Simple
+* allowed internet to be widely deployed and adopted
+* "good enough" performance/bandwidth for "most of time"
+
+
+= Router Architecture =
+* router = high speed switching fabric + routing processor
+* may put buffer on input or output or both
+* can have different scheduling algorithms at input/output
+* can have single or distributed buffers 
+* forwaring table needs to be updated from time to time
+
+= Destination based forwarding table =
+* Solves the problem of having large tables assuming we can have classes of addresses
+* Maps range of addresses to link interface (output)
+* but there could be some addresses in between that don't go to that specific output even if it lies in that certain range
+
+= Longest Prefix Matching =
+* when looking for forwarded table entry for given destination address, use longest address prefix that matches destination address
+
+```
+11001000 00010111 00010*** ******** -> 0
+11001000 00010111 00011000 ******** -> 1
+11001000 00010111 00011*** ******** -> 2
+
+eg: 
+
+11001000 00010111 00010110 10100001 goes to 0 interface
+11001000 00010111 00010000 10100001 goes to 1 interface not 2 because longest prefix match
+```
+
+= how to transfer packets from input to output? =
+
+== IPC ==
+* inter process communication
+* slow because shared memory
+* add hardware
+
+== Bus ==
+* bus = data stream (hardware)
+* bus maybe full
+
+== Interconnection Network ==
+* if money is not constraint, make a mesh / matrix / network withing a router connecting all inputs to all outputs
+* much faster than bus
+* if one link isnt using the path much, other links can utilize it
+* Router is still a bottleneck. Doesnt matter how much speed transfer provides, if the router is slow, the whole operations gets slow
+
+= input port queueing =
+* Head-of-the-line-blocking (HOL)
+	* queued datagram at front of queue prevents others in queue from moving forward
+
+= output port queueing =
+* buffering required when datagrams arrive from fabric faster than link transmission rate
+* needs drop policy
+
+= how much buffering =
+* average buffering = RTT * C / sqrt(N)
+
+= Network neutrality =
+* no blocking
+* no throttling
+* no paid prioritization
+
+= Network Layer =
+between transport and linnk layer in TCP/IP
+
+= IP Datagram format =
+* Version (4bits) : which version of ip -> IPv4 or IPv6
+* header length: because "options" exists ahead so we need to know length
+* type of service
+* length (16bit): total data+header length
+* Identifier (16bit): like a unique number for each datagram
+* flags : some bits informing if fragmentation has been done or not
+* fragment offset: 
+	* if a router's MTU (max transferrable unit) is less than the size of the datagram received; then the bit packet must be fragmented into more that one bit packets
+	* the receving router should be let known that the 2 packets are part of one packet
+	* so, it needs the identifier and the the part where it was trimmed and the offset (which one to put first)
+	* router's ability to fragmentis removed in IPV6
+* time to live : set by the initial sender
+* upper layer : TCP or UDP
+* header checksum
+* source ip address (32bit)
+* destination ip address (32bit)
+* options (32bit)
+* payload data
+
+* min header size = 20 bytes
