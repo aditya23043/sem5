@@ -100,3 +100,10 @@ imp: ip addr added in network (IP) layer format
 * NAT: Network address translation
 * Even though IP Addreses (ipv4) have run out, NAT enables us to still utilize the internet
 * Advantage of NAT: only need firewall at one system
+
+IPV6 format
+* Removed:
+	* Options
+	* Checksum
+	* fragmentation
+* 128 bit addresses
