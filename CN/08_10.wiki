@@ -1,0 +1,102 @@
+imp: ip addr added in network (IP) layer format
+
+= IP Addressing =
+* Why ip addr exists even if mac addresses exist?
+* Easier to manage
+* Mac addr is permanent but ipaddr is dynamically changing and it is easier to index and query systems through ip addr
+* at the link layer, data is transferred through mac addr
+* easier to categorize
+* Routers can have multiple NICs (network interface cards) and therefore multiple MAC address (assigned by the NIC manufacturer)
+* Subneting
+	* Systems connected to the same interface of the router share the same 3rd byte of IP Address 
+	* Eg: 223.1.2.x
+	* here 2 is the subnet identifier
+	* and each subnet can have 256 devices concurrently connected (because of 8bit identifier)
+	* We can also have multiple routers in the same area
+	* those will get different 2nd byte in the ip addr
+	* Eg: 223.3.x.x
+	* Here 3 is the router number
+	* High order bits define the subnet mask
+	* Low order bits define system in subnet
+	* We can also have filters for different subnets
+	* subnet = isolated network
+* Hub
+	* Very simple
+	* 4 port hub = can connect 4 computers to the router
+	* it will send data to all the connected devices and the receiver needs to process if the received data was meant for them or not
+* 256x1 MUX?
+* ICANN: Organisation which assigns IP Addresses
+* Older ip addr allocating methods: CLASSFUL ADDRESSING
+	* Class C address: fixing the first 3 bytes in the ipaddr
+		* Eg: for someone who has 10 devices
+	* Class B address: fixing the first 2 bytes
+		* Eg: for someone who has 500 devices (but now they can have up to 65000 systems because 16 bits given)
+	* Class A address: fixing the first byte
+		* Eg: for someone who has 70k devices but got alloted up to 16million
+* Unused addresses (wastage)
+* Solution: Confine the number of bits assigned (CLASSLESS ADDRESSING)
+	* If someone has 300 devices, instead of assigning them 16 bits, assign 9 bits
+	* Much less wastage
+	* Also, this 32 bit address is now divided into 
+		1. subnet part 
+		2. host part
+* We dont have that many devices to overflow ipaddr limit but we have that many ip addresses
+* *CIDR*: Classless InterDomain Routing
+* Subnet mask: a.b.c.d/x where x is the # of bits in the subnet portion of address (i.e. the fixed bits)
+* Eg: 200.23.16.0/23
+	* I can change the 9 bits at the end
+	* How can we add new devices?
+	* Keep a counter and add when new device connects
+	* But if I am supposed to delete 200 connections, I will have to go through an exhaustive list and drop the connections We can have sub-subnets
+	* If we group form the first bit in the 9bits, we will have 2 sub-classifications
+		* Eg: 200.23.1600010000.* & 200.23.1600010001.*
+	* if we group from the first 2 bits in the 9 bits, we will have 4 sub-classifications
+		* Eg: 200.23.1600010000.0* & 200.23.1600010000.1* & 200.23.1600010001.0* & 200.23.1600010001.1*
+
+= How to get IP Address? =
+* ICANN: for public addresses for itself (Internet corp for assigned names and numbers)
+* But how to get an IP if you just entered a network?
+	* Start "shouting"
+	* Wait for someone to respond
+	* If the organisation is entertaining new connections, they should have someone to respond to new connections = DHCP Server
+* DHCP : Dynamic Host Configuration Protocol
+* Standardization wont work because you can only send requests in the local network
+* Shouting = Broadcast
+* Forward it to all devices connected
+* we need to attach an identifier to identify the shouter = MAC Address
+* Organisations like IIITD can assign same IP address to the same laptop every time because it remembers the MAC address in the first connection
+	* They keep a lookup table
+* Guest networks are not assigning you fixed addresses
+* DHCP Protocol best to be implemented using UDP
+* Default port for DHCP = 67
+* src: 0.0.0.0 (no ip addr assigned yet)
+* dst: 255.255.255.255:67 (default addr and port for DHCP server)
+
+* DHCP discover -> DHCP offer -> DHCP request -> DHCP ACK
+
+> GO HOME
+
+* We have about 10 ipaddresses assigned to IIITD 
+* then how do we all have internet?
+* one way could be only 10 folks can access at any given time
+* OR, the 10 devices can send the requests from all the devices on behalf of them
+* The gateway router can access the internet
+* It manages the requests from all the devices in the local network 
+* so, all the devices in the local network do not need unique addresses, they just have to be unique in the local network
+* The common local network address is 192.168.x.x
+* there wont be any global addresses starting from 192.168.x.x
+* there only 3 such unique local address conventions
+* Gateway router has a globally unique IP Address
+* All the other machines in the network have a locally unique Ip Address
+
+* The gateway router will have to replace the source's IP address in the packet to its own and then sends the packet
+* Packet manipulation at the gateway router
+* It cannot just "forward" the packet
+* The lookup table at the gateway router has 2 fields:
+	1. Local IP (addr+port)
+	2. Requests (addr+port)
+* Now, when the request is received, it will lookup which of its port was linked with which devices' local ip address
+* Port number field is 16 bit -> so, we can have 64,000 parallel connections / systems without having more than one globally unique address
+* NAT: Network address translation
+* Even though IP Addreses (ipv4) have run out, NAT enables us to still utilize the internet
+* Advantage of NAT: only need firewall at one system
