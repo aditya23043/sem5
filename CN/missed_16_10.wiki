@@ -1,0 +1,34 @@
+= Contd. Dijkstra =
+* Different nodes run link-state algos to build their forwarding table
+* complexity: O(n^2)
+	* Because n(n+1) / 2 comparisons
+	* Can be optimized to O(n logn) with heap implementation
+* Oscillations possible
+	* Eg: Google Maps
+	* Immediately switching route based on cost function (dijkstra) in each iteration
+	* Link cost must be decided carefully
+
+= Bellman Ford =
+* Distance Vector algorithm
+* Dynamic Programming
+* Let Dx(y) be the cost of least-cost path from x to y
+* Dx(y) = min_v { cost_(x,y) + Dv(y) }
+* Decentralized algorithm
+* Does not need to know network topology
+* A node does not need to know info about all nodes; just about it's neighbours
+* From time to time, each neighbouring node sends its own distance vector estimate to neighbours
+* At some point, the estimate Dx(y) converge to the actual least cost 
+
+Algo:
+wait for change in local link cost or msg from neighbour
+recompute Dv estimate using Dv estimates received from neighbours
+if Dv to any destination has changed, notify neighbours
+repeat
+
+iteration, async
+iteration caused by:
+1. local link cost change
+2. Dv estimate update msg from neighbour
+
+distributed, self-stopping
+DV → Distance Vector

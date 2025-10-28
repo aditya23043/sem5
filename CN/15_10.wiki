@@ -1,0 +1,109 @@
+* NAT: network address translation
+* solves the problem of running of public IPv4 addresses
+* but IPv4 addresses are still running out
+
+= Network Layer: IPV6 =
+
+== Motivation ==
+* 32 bit IPV4 address space would be completely used up
+* speed processing / forwarding: 40 byte fixed length header whereas IPV4 had a variable length header and hence it is slower than having a fixed length header
+* enable different network-layer treatment of "flow" → context
+* IMP: header length = 40 bytes
+
+== Format ==
+* Version (ipv4 or ipv6 or something new?)
+* Priority (application priority level)
+* Flow Label (define that the current part of processes are a part of a flow → context)
+* Payload Length (data / payload could be variable)
+* Next (where would it go? tcp / udp?)
+* Hop limit (how many hops the packet goes before it dies; to make sure that the packet which are delayed get cleaned up out of the network)
+* source address (128 bits)
+* destination address (128 bits)
+* payload (data)
+
+* Note: no fragmentaton
+* Now, how will we send very huge packets without fragmentation?
+* Discards the big packet
+* Sends the control msg to previous host if the current host cannot handle that much data (set by payload length)
+* Idea: bottleneck
+* number of addresses = 2^128 is very huge
+
+= what is mising in the format? =
+* no checksum
+* no fragmentation
+* no options
+
+= How to move from ipv4 to ipv6? =
+* complete transition → one day network would be down and then next day we have ipv6 all over
+* but this is not practical because there a lot of machines still running IPV4 only 
+* we wait for all the machines to transition to ipv6 but this will take a very long time
+* we know that any machine that has ipv6 also has ipv4
+* lets say we have A -> B -> C -> D -> E -> F
+* and C and D only support ipv4
+* A is only connected to B and knows that B supports ipv6 so it sends ipv6 packet
+* but then B knows that C only supports ipv4 so it will wrap the whole ipv6 packet as the payload of a ipv4 packet
+* D is also only ipv4 so C sends the ipv4 to D and then to E
+* but E and F support ipv6
+* so E will throw away the ipv4 header and only send the payload i.e. the ipv6 packet to F
+
+* how will a ipv6 supporting host know if it is handling a regualar ipv4 packet or a ipv6 inside ipv4? 
+	* set a flag in the options in ipv4 header
+* technical term for wrapping ipv6 inside ipv4: tunelling
+* ipv6 is doing gradual transition
+* only 40% of the devices are supporting ipv6 and only 1/3rd of US govt's domains are ipv6 capable
+
+= SDN: not part of the syllabus for exams =
+* Forwarding table
+* OpenFlow (open source)
+* Action: port6 (which port of router to forward to) / drop (block; do not forward)
+* Load Balancer: distributes requests to different servers
+	* Eg: sending a request to google.com does not send request to a single server
+* NAT was originally designed to handle the ipv4 address limit but it is great for management and security (firewall)
+	* so it might still remain if we shift to ipv6 fully
+* Earlier, the end devices / end nodes were intelligent
+* Now, we can have the core intelligent as well through SDN: Software defined networking
+* DDoS: Distributed Denial of Service
+
+> Done with the extra stuff
+
+= Forwarding Table Algos =
+* Cost function = financial or distance
+* Flow control
+* Types: 
+	* Global: All routers have complete topology, link cost info → Dijkstra → "Link State" Algorithm
+	* Decentralized: we only know cost function of neighbour → "Distance Vector" Algorithm
+* Do we need static or dynamic algo?
+	* static = routes change very slowly over time
+	* dynamic = routes change more quickly
+
+== 1. Link State Algorithm ==
+* Dijkstra's Algorithm
+* Centralized
+* TCP is unicast
+* Broadcast: sent to all
+* Unicast: sent to one
+* Multicast: sent to many
+
+* Computes least cost paths from one node (source) to all other nodes
+* iterative: after k iterations, know least cost path to k destinations
+
+=== Notation ===
+* Cₓ,y = direct link cost from node x to y
+* D(v): current estimate of cost of least cost path from source s to destination v
+* N' : optimal path  
+* p(x) : predecessor node
+
+```pseudocode
+// Initial setup
+N' = {u}
+for all nodes v:
+	if v adj to u:
+		then D(v) = C_u,v
+	else:
+		D(v) = infinite
+		
+Loop:
+	find w not in N' such that D(w) is mininmum
+	add w to N'
+	update D(v) for all v adjacent to w and not in N': D(v) = min( D(v), D(w)+C_(w,v) )
+```
