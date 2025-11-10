@@ -1,0 +1,154 @@
+= Link Layer & LANs =
+
+* physical connection
+* how data is actually sent to the "next" machine
+* "next" machine is deterimined the by Link state / Distance vector algorithms
+* Not end-to-end
+
+== Terminology ==
+1. NODES: Devices i.e. hosts, routers
+2. LINKS: communication channel
+3. FRAME: Layer-2 Packet (note: we had them as "packets" in transport layer and then "datagram" at IP)
+
+== Identifier ==
+At tcp, we had port number identifying the application
+At IP, we had an IP addressing identifying the machine
+At Link layer, we have MAC (Media Access Control) Address identifying the machine at the link layer
+
+In general, nothing is promised
+Link layer check (like a checksum)
+Eliminates the need for checksum / data verification in above layers because if we received the packet correctly in link layer, it is almost certain that we will be getting correctly at above ports
+
+1. Flow Control
+2. Error Detection
+3. Error Correction (without retransmission)
+
+A way: we transmit `n` duplicates of the packet and take the majority vote at the receiver
+This works in almost all cases because generally there arent huge errors such that majority bits are incorrect
+Problem: Overhead due to the extra information
+
+== Error Detection ==
+* EDC: additional bits (error detection and correction)
+* D: data protected by error checking, may incude header fields
+* datagram -> D | EDC -> (bit-error prone link) -> D' | EDC' -> (checking) all bits in D' ok? -> datagram
+
+=== Parity checking ===
+
+==== 1 bit error ====
+
+* guarantee : 1bit
+
+1. SINGLE BIT PARITY
+
+* detect single bit errors
+* we can have something like EDC = 1 when number of 1s is even or odd
+* this function can detect odd number of errors but not even number of errors
+* Assurity: Can definitely detect 1 bit error
+* Could detect but could not correct because we didnt know which bit was corrupted
+
+2. 2D PARITY
+
+* For 3 packets of 5 bits each
+* we can have the parity bits HIGH when the number of 1s as odd of both rows and columns
+* for 15 bits of transmission, we need 5+3 = 8 bits
+* provides error detection & correction for a single bit error
+
+===== Cyclic Redundancy Check (CRC) =====
+* more powerful error-detection coding
+* D: data bits, of d bits
+* G: bit pattern (generator), of r+1 bits
+* Guarantee: r+1 bits
+* R = (D * 2^r) % G
+
+
+== Multiple Access Link ==
+
+=== Point-to-point links ===
+* Physically connect machines one-to-one
+* manually draw up a wire between the two
+* very expensive, sometimes not even feasible
+* eg: between Ethernet switch, host
+
+=== Broadcast ===
+* shared wire / medium / channel
+* need to control who talks because two machines talking at the same time means everyone's data is being corrupted
+* MAC -> Medium access *control*
+* that's why "control"
+* Eg: TV / tata sky (older times). There is no data going back
+* *COLLISION* if node receives two or more signals at the same time
+* no out-of-band channel for coordination
+
+== Ideal Multiple Access Protocol ==
+* given: multiple access channel (MAC) of rate R bps
+* when one node wants to transmit, use the R bps channel
+* when `m` nodes want to transmit, divide the channel into R/m bps each
+* fully decentralized
+	* no special node to coordinate transmissions
+	* no synchronization of clocks
+* we can try to send data of m nodes by sending every 60/m minutes but..
+* we cannot have perfectly synchronized clock between two devices
+
+== Actual MAC Protocols ==
+* We cannot fulfil all assumptions of ideal MAC protocol
+1. "taking turns" / round-robin algo
+	* node take turns
+	* but nodes with more to send take longer turns
+	* not decentralized anymore
+2. random access
+	* channel not divided, allow collisions
+	* "recover" from collisions
+	* self-regulation
+	* complex because we need to handle collisions
+3. channel partitioning
+	* divide channel into smaller "pieces"
+	* allocate piece to node for exclusive use
+	* but when only one is transmitting, even then only 1/n channel is used and the rest is wasted
+
+* Channel Partitioning: FDMA
+* Frequency division multiple access protocol
+* eliminate round-robin because we need decentralization and eliminate channel partitioning because of inefficiency
+* that leaves us with *random access*
+* two or more transmitting nodes = collision
+* questions: how to detect and recover from collisions?
+* eg: of random access MAC protocols: ALOHA, slotted ALOHA, CSMA, CSMA/CD, CSMA/CA
+* CSMA: carrier sensing multiple access
+
+=== Pure ALOHA ===
+* Send anytime and hope that collision doesn't happen
+
+=== Slotted ALOHA ===
+* time divided into equal size slots
+* Set general time to transmit 1 frame
+* node should start to transmit only at slot beginning
+* nodes are synchronized (not hard synchronization)
+* if 2 or more nodes transmit in slot, all nodes detect collision
+* when node obtains fresh frame, transmits in next slot
+* if collision occurs, it occurs only in the beginning of a slot
+* collision = node sending AND receiving data
+
+* if no collision, node can send new frame in next slot
+* if collision, node retransmits frame in each subsequent slots...
+* if we just had this, it won't work because if we have collision i.e. 2 nodes sending then they both try to retransmit in the next slot and collision again
+* Correction: if collision -> node retransmits frame in each subsequent slots with probability `p` until success
+
+simple 
+highly decentralized
+collisions, wasting slots
+idle slots
+clock synchronization
+nodes may be able to detect collision in less time than the time to transmit packet
+
+=== Efficiency ===
+* number of nodes = N
+* Probability that the given node has success in a slot = p (1-p)^(N-1)
+* prob that any node as a success = N * p * (1-p)^(N-1)
+* max efficiency: find p* that maximizes ( N * p * (1-p)^(N-1) )
+* p = 1/N
+* max efficiency = Np* (1-p*)^(N-1)
+* replace p with 1/N
+* and N -> infinity
+* we get max efficiency = 1/e = 0.37 i.e. 37% efficiency only
+* 63% of the time either the slot is idle or we are facing collision
+
+
+> bolne wala tha mere saare dost baune h, fir sir aa gye and chup hona pada - Animish

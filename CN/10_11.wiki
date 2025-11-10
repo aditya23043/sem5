@@ -1,0 +1,105 @@
+= Previous Class =
+* Slotted ALOHA's efficiency is only 37% ( idle for about 2/3rd of the time )
+* But no node needs coordination with each other even on a single access channel
+
+= Token Ring =
+* Token passing as an alternative to round-robbin to avoid starvation and to avoid asking even if there is no data to be sent
+* Controller asks some node if they need to send data
+* need not to ask every node like round-robin
+* need not be the same set of nodes to ask every time
+* controller needs to be intelligent
+* If controller fails → everything fails
+* Eg: Bluetooth (it can connect up to 7 nodes)
+
+= CSMA =
+* Carrier sensing multiple access
+* When one node is "talking", other nodes will wait for it to stop
+* If no node is talking (idle), any one node is allowed to talk
+* *Problem* : 
+	* When the propagation delay is high; so if two nodes start talking at the same time or even at different times, they might not detect collision for quite some time due to the propagation delay
+	* And the past data which was already sent, will still remain in the channel, so basically, corrupt data
+	* entire packet transmission time wasted
+* Two Types
+	1. CSMA/CD
+	1. CSMA/CA (for WiFi) → collision avoidance
+
+= CSMA/CD =
+* Collision detection
+* As soon as collision is detected, abort the transmission and let the bits already in the link get wasted
+* Then retransmit the frame, but when?
+* Randomly find the timeout and hope that the other side's timeout is not the same and they collide again
+
+== How does ethernet implement it? ==
+* If idle: start frame transmission
+* if busy: wait until channel idle, then transmit
+* if entire frame sent without collision
+* If another transmission detected while sending, abort the transmission
+* After aborting, enter binary (exponential) backoff
+	* After mth collision, choose k at random from { 0, 1, 2, ... 2^(m) - 1 }
+	* Ethernet waits K * (512 bit times) then repeat
+	* more collisions -> longer backoff interval
+* at 1st collision, m=1 and the probability of choosing same interval = 50% because we have { 0, 1 }
+* so, if collision happens again (i.e. we choose same interval), then probability of choosing same reduces to 25% and then halves at each collision
+* That's why the term -> exponentially
+* Probability of collision decreases exponentially
+* the time it is waiting increases exponentially
+* NOTE: 512 bit times means the time it takes to transmit 512 bits
+* m's maximum value is set to be 10
+* This algo is for retransmission
+* when a successful transmission happens, m resets back to 0
+* *IMPORTANT*: no coordination required (noice)
+* Efficiency: 1 / ( 1 + (5 * t_prop /t_transmission) )
+* Efficiency goes to 1 when t_prop -> 0 and t_transmission goes to infinity
+* better performance than ALOHA and simple, cheap and decentralized
+
+= MAC Address =
+* Each adapter has a fixed 48 bit MAC Address
+* Physical address
+* IEEE manages it
+* it is burned in NIC ROM. could also be software settable
+* MAC addresses = flat addresses → no relation between MAC addresses
+* IP addresses = heirarchical addresses
+* 2 machines cannot have the same MAC address
+* IEEE assigns the first 24 bits to organisations
+
+= ARP =
+* Address resolution protocol
+* ARP table → map of ip addresss and mac address along with TTL
+* TTL = time after which entry is removed
+
+== Implementation of this protocl? ==
+* Dynamically updating table
+* ARP uses as-you-go approach (dynamic)
+* Two ways
+	1. Shout when you need something when we dont find in my table
+	2. Only ask for certain system's mac address whose ip addr is known
+	3. We can also have such that when some node tells me something, everyone else should also note down the mac/ip
+* Broadcast addresss: FF-FF-FF-FF-FF-FF
+* sends to all nodes in the subnet when sent to broadcast address
+* the certain node can either send privately, point-point or it can broadcast to all nodes
+* If someone needs to send outside the subnet, they send the packet to the router and then the router sends it ahead
+* can detect if packet is for within-subnet or outside-subnet by observing the IP Address and its mask bit
+
+= Ethernet =
+* simple, cheap
+* Types
+	1. Bus: older approach
+		* All nodes in the same collision domain
+	2. Switched
+
+== Frame Structure ==
+* preamble, dest address, source address, type, data (payload), CRC (cyclic redundancy check)
+* preamble is 8 bytes of data used to synchronize receiver's and sender's clock rates
+	* 7 bytes of 10101010 followed by 10101011
+* maximum payload size: 1500 bytes (including ip header)
+* minimum eth frame = 64 bytes 
+* even if data is only 1 byte, it pads to make it 48 bytes
+* hint: 512 bit was the magic number and note 64 bytes = 512 bits
+* type: indicates higher layer protocol (mostly for Ip layer)
+
+* Connectionless: no handshaking
+* unreliable: no ACK or NAK (not that bad practically because physical wire underneath and handling unreliability is costly)
+* Ethernet's MAC protocol: unslotted CSMA/CD with binary backoff
+
+FX : fiber
+TX: twisted pair (can only go up to 10mbps)
