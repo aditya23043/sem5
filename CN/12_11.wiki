@@ -1,0 +1,89 @@
+= Important Terms =
+* Maximum Diameter = 232 bit time
+	* Max distance between two nodes
+* Jam Signal = 32 - 48 bits
+	* The moment any transmitting node experiences collision, it starts a jam signal which is a sequence of 10 10 10.... till 48 bits
+* Interframe Delay = 96 bit time
+	* Delay before a node waits before transmitting (while the channel is idle)
+	* Even the first transmission does not happan at t=0; it happens at t=96 bit time
+	* If it receives any signal before this timeout happens, the node backs off
+* Note:
+	* Round trip bits = 2 * 232 bit = 464 bit
+	* Ethernet frame size = 512 bits
+	* Subtract → 512 - 464 = 48 bits (jam signal)
+* Jam signal goes in the end (in place of the CRC) and ensures that CRC check fails
+
+```example
+Eth frame size = 512
+preamble = 8 bytes = 64 bits
+total -> 576 bits
+
+If B starts sending at t=324, it will reach A at t=649 but A had already sent all the frame bits (576) and since not collision was detected in between, it won't retransmit
+Hence we need to cap our propagation delay at 232 bits times
+we can also increase the interframe delay to more than the propagation delay but that will impact idle delay by a LOT
+```
+
+prop delay = 245 bit times
+
+= Ethernet Switches =
+* Earlier we used to use Hubs which used to just amplify the signal and transfer on all busses and for collisions we used CSMA/CD
+* Now, we use switches in which no 2 nodes are sending on the same signal
+* CSMA/CD not required but some people are still using hubs so CSMA/CD is still kept
+* If nobody is sending, it gives full bandwidth (great)
+* MUX logic used in ethernet switches
+* Ethernet switches are plug-and-play, self-learning (not much overhead)
+	* Switches need not be configured
+* Switches also have mapping tables (switch table) like routers but much simpler because eth frames contains the dest and src mac address
+* Initially, it needs to do some broadcast for mapping ports to mac address
+* a.k.a layer 2 switches
+* routers are also called layer 3 switches
+* We can have cascaded switches and it will still learn very fast
+
+> Link layer (lvl 6) done
+
+= Synthesis =
+* DHCP → UDP
+* DNS → UDP
+* ARP
+* TCP
+* HTTP
+
+> VLAN will not be done
+
+= Wireless Networks =
+* TCP performs worse in the case of wireless technology due to the channel being even more unreliable can result in more congestion and that slows the transmission rate
+* Requires a "base station"
+* Those base stations are themselves connected by wire
+* Note: they can be connected wirelessly but it would introduce some problems, so generally → wired
+* Two types of wireless networks
+	1. Infrastructure : centralized controller
+	2. Ad-hoc : like p2p; theoretically good but practically complex
+		* No base stations
+		* Used for sensor deployment
+		* nodes can only transmit to other nodes within link coverage
+		* Eg: Zigbee, Bluetooth
+
+== Problems ==
+* Multipath propagation in wireless link
+	* Receiver not just receives radio signals from Access point directly; but also signals bouncing off of the walls and other objects, etc
+* Hidden Terminal problem
+* Attenuation
+
+= CSMA/CA =
+* Very difficult to detect collisions in wireless link
+* So, we should avoid collisions
+* Needs coordination
+* Take permission from all nodes to transmit
+* RTS message = Request-To-Send
+* CTS message = Clear-To-Send
+* send RTS. wait for CTS. if CTS comes, wait for some time and then start transmission
+* much less efficient than wired but still a solution
+* need to implement fairness
+* Complexity: there could be many hidden terminals
+
+= CDMA =
+* Code division multiple access
+* each node gets a unique code
+* encode the original message with the code
+* Receiver decodes messages with key = node's code
+* better than FDMA, TDMA
