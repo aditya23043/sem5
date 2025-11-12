@@ -1,0 +1,5 @@
+# quiz prep
+* WTI: Water Technology Initiative
+* COD: Chemical Oxygen Demand mg/L
+* BOD: Biochemical Oxygen Demand
+* ZLD: Zero liquid discharge

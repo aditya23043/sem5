@@ -1,0 +1,7 @@
+= Reserves and Metals =
+* Aluminium
+* Chromium
+* Platinum
+* Gold
+* Nickel
+* Lithium

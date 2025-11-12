@@ -1,0 +1,32 @@
+# Stuff to be submitted
+
+* Min voltage across the current source (Vmin)
+* output resistance of the circuit (Ro)
+
+# Stuff to do
+
+* We need to do the schematic on virtuoso (65nm technology)
+* Layout not required
+* we need to do ADE L simulation 
+
+
+* Vds = Vout
+* Rout = across D and S
+
+* In the current mirror ckt, tweak the width in order to change Id
+* for min Vout, Vgs1 = Vgs2
+* minimize λ (channel width modulation)
+* λ depends on Vds
+
+common source, common gate, common drain, cascode
+single stage amplifier: razavi
+small signal analysis
+
+Ro increases -> Area increases
+
+# three topologies
+
+1. current source
+2. resistance
+3. diode connected MOSFET
+	* used to get very high resistance
