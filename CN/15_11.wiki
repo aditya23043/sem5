@@ -1,0 +1,112 @@
+= Security =
+
+== Dimensions of Security ==
+* Confidentiality: only intended sender and receiver "understand" msg contents (encryption)
+* Authentication: sender and receiver wanting to confirm identity of each other
+* Message Integrity: sender, receiver want to ensure message is not altered without detection
+* Access & Availablity: services must be accessible and available to intended users (DDOS)
+
+* In Security paradigm, we define the attacker's capabilities first
+	* Eavesdrop: intercept msgs
+	* Insert data
+	* Impersonation: spoof source address (or any other field) in packet
+	* Hijacking: removing sender or receiver and inserting themselves in the connection
+	* Denial of Service: prevent service from used by others
+
+== Attack on encryption ==
+1. cipher-text only attack
+	* Attacker has only cipher text
+	* Apply brute force to search through all possible combinations
+	* Or statistical analysis
+2. known-plaintext attack
+3. chosen-plaintext attack
+
+== Symmetric Key Cryptography / Private Key Cryptography ==
+* Using same key on sender and receiver
+* Algorithm might be known by everyone but the key is known only by the intended receiver and sender
+* Called private key cryptography because if someone else knew the key, the algo would be broken
+
+=== How to share the key? ===
+* Share the key on another channel (could be physical)
+* In digital network, we can't be 100% secure when sharing the key
+
+==== DES: Data Encryption Standard ====
+* Key Length: 56 bits
+* Data length: 64 bits
+* Need to keep computation optimised while ensuring security
+* Deterministic
+* Broken
+* Not secure
+* Can be broken by brute-force
+
+==== AES: Advanced Encryption Standard ====
+* Replaced DES
+* Processes data in 128 bit blocks
+* 127/192/256 bit keys
+* Deterministic but only intended receiver can decrypt "in time"
+* Brute force decryption takes 1 second on DES, but takes 149 tril years for AES
+
+* Does not resolve Man-in-the-middle attack
+* Need to avoid necessity to having shared one key
+ 
+== Public Key Cryptography ==
+* Public key + private key 
+* Whatever is encrypted with public key, should be decryptable by the private key
+* But not the other way around
+* Sender encrypts the data with receiver's public key and then on one (even the sender) cannot decrypt that data except the receiver and that too with their private key
+* Need KB+ and KB- such that: KB-(KB+(m)) => m
+* give public key KB+, it should be impossible to compute KB-
+* RSA: Rivest, Shamir, Adelson algorithm
+
+{{{
+
+a%n + b%n = (a+b) % n
+a%n - b%n = (a-b) % n
+a%n x b%n = (axb) % n
+thus: (a%n)^d % n = a^d % n
+
+choose two large prime numbers, p and q
+compute n = pq, z = (p-1) x (q-1)
+choose e (e < n) that has no common factors with z (i.e. e & z are relatively prime)
+choose d such that (ed-1) is exactly divisible by z ( i.e. ed % z = 1 )
+
+To ENCRYPT a msg m, compute:
+	c = m^e % n
+	now c is the encrypted message
+	
+To DECRYPT received bit pattern c, compute:
+	m = c^d mod n
+	
+i.e. m = (m^e % n)^d mod n
+
+}}}
+
+* Used in HTTPS
+* RSA is computationally very expensive
+* AES is much much faster
+* Browser first does RSA with website which then creates and shares a private, shared key to continue in AES which is faster
+* Problem of sharing the key solved with RSA
+* Note: AES is costlier than DES/3DES and even though they have been cracked, they are still used in applications which don't require utmost security and do not fear that the data will be decrypted
+* DES is atleast 100 times faster than RSA
+
+* In RSA, we can do the reverse direction as well i.e. encrypt with the private key and decrypt with public key
+* Used in authentication
+* If we receive a data which can be decrypted with my public key, that means I had sent the data 
+
+{{{
+Public key requires n and e
+Private requires n and d
+}}}
+
+== Authentication ==
+* Easiest: Simply say "I am ..."
+* Very easy to break by replicating
+* Add a password field but anyone can listen and send the same
+* Encrypt the password but then also anyone can send the same encrypted password and it would match
+
+=== OTP ap3.0 ===
+* Receiver sends back R which was (otp) and sender sends back encrypted R which was encrypted using sender's private key and then receiver asks for sender's public key so that they can decrypt and try to authenticate
+* Avoids playback attack (wrong auth over and over)
+* man-in-the-middle attack: attacker poses as sender to receiver and receiver to sender
+* How does the receiver know that the public key received was of the intended receiver and not of an attacker
+* Challenge: whose public key is it?
