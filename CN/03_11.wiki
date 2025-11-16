@@ -149,6 +149,3 @@ nodes may be able to detect collision in less time than the time to transmit pac
 * and N -> infinity
 * we get max efficiency = 1/e = 0.37 i.e. 37% efficiency only
 * 63% of the time either the slot is idle or we are facing collision
-
-
-> bolne wala tha mere saare dost baune h, fir sir aa gye and chup hona pada - Animish
