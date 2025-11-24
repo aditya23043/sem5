@@ -1,0 +1,101 @@
+= Network Security Requirements =
+2. Confidentiality
+3. Authentication
+4. Message Integrity
+> These points are independent of each other. Sometimes, we are ok with "some" of these points only
+* We don't always go with full security
+* Security = expensive
+* Eg: If we are in a trusted network, we might not need confidentiality
+
+= Authentication =
+
+== Digital Signature ==
+* PROPERTIES
+	1. Verifiable
+	2. Non-forgeable
+	3. Non-repudiation
+* Non-repudiation: the node should not be able to deny that they signed
+* Receipant can prove to someone that a node and no one else must have signed document
+* If someone can decrypt a msg with a node's public key, then they are authenticated
+
+== Message Digests ==
+* RSA is computationally expensive
+* Apply hash function H to the message m and get a fixed size msg digest, H(m)
+* Then we sign that Hashed message H(m) to  get S
+* Signing this means encrypting with private key
+* Message m is sent and encrypted signature S is sent
+* When received, S is decrypted back to H(m) and then the hash function is used to generate Hash H'(m) on the message received
+* If H == H', successfuly authenticated
+* SHA3: Secure Hash Authentication ver 3.0
+* Eg: Really good if the main data is very big in size and needs not be encrypted for sending. So, we only needed to encrypt the hash output
+* Hash Functon needs to:
+	* Produce many-to-1 output
+	* Give msg x, it should be computationally infeasible to find m such that H(m) = x (shouldnt be dehashed)
+	* Need a really good hash function
+* Great for digital signatures
+* This solves the problem of having to encrypt the bigger msg which could be very computationally difficult for some computers
+
+= Certified Public Key =
+* We need a third party trusted authority controlling the verificaiton
+* CA: Certification Authority
+* Binds a public key to an entity
+* CA creates certificate binding identity to node
+* Eg: Google Trust Services, VeriSign
+* Types:
+	* Trusted
+	* Untrusted
+* There is an organization which assigns CA to be trusted or not
+* Browser has a set of CAs and if a website is not certified or it is certified from an untrusted CA, then it shows warning like potentially dangerous website, or cert expired
+* CA's job is to only match the public key to a node (Authentication)
+* It may or may not assign the public/private key themselves to the node. The node can generate the keys themselves
+
+> We can handle msg integrity with the hash function
+
+= Make an email service =
+* Given: KA+, KA-, H, m
+* Need: Confidentiality, Authentication, Message Integrity
+
+* Steps
+* msg needs to be sent from Alice to Bob
+* Hash function H is used to generate Hash of msg m -> H(m) (for 2 and 3)
+* Then that is encrypted with Alice's private key -> KA-(H(m)) = Q
+* Then the message is also encrypted, m -> KA-(m) = M
+* The message + encrypted hash is sent to Bob: M + Q
+* Bob fetches Alice's Public key from CA
+* Then, Bob decrypts the message M -> m using Alice's public key: KA+(M) -> m
+* and then bob verifies the data integrity by decrypting the hash function: KA+(Q) -> H(m)
+* then generates hash from the msg received and matches to ensure data auth and data integrity.
+* WRONG: anyone can decrypt the msg
+
+* We send, KB+(m) + KA-(H(m)) to Bob (computationally very expensive)
+* could also have a solution in which a shared key is first shared using the above, then it remains in the receiver for some "TTL" and the next transfers can be done using AES/DES
+* Only bob can decrypt the msg and the 2nd part is used for auth and data integrity
+* Also, Alice needs to send certificate first so that Bob can know which CA is used by Alice
+* Main question: At what cost?
+* Easy solution: Dont manage it. Generate it, use it, discard it
+
+* PGP: Pretty Good Privacy Service
+
+= TLS =
+
+> Netscape made the first browser. Microsoft stole it and buried it
+* Netscape made SSL. Then it evolved into TLS (Transport-layer security).
+* Hard process: Secure a specific layer. Needs to change "Standard"
+* Easy: Secure your application (→ TLS)
+* Provides confidentiality, authentication, integrity
+* Unprotected: 25, Protected: 443 (for TLS)
+* SSL got deprecated in 2015
+
+== Building TLS ==
+* Handshake: use their certificates, private keys to auth
+* key derivation: use shared symmetric keys (to reduce computation)
+	* Dont share the key. share the "method" to generate the key
+* TLS hello -> public key certificate
+* Four keys are generated. 2 for MAC, 2 for message/data
+* TLS hello / handhshake happens using RSA
+* Within the TLS connection, same keys are used
+* TCP provides byte-stream
+* TLS verifies each segment
+* TLS works till the end of the connection
+* Closing also happens withing TLS first then the TCP because whenever TCP receives FYN, it closes; doesn't matter who sends the FYN. Anyone can send the FYN
+* GMAIL works only with clients using TLS

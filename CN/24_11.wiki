@@ -1,0 +1,112 @@
+= IP Sec =
+* Security at IP layer
+* Provides datagram encryption, auth and integrity
+* Two Protocols:
+	1. AH: Authentication Header
+		* Provides auth and integrity but not confidentiality
+		* 100% sure about the sender and receiver
+	2. ESP: Encapsulation Security Protocol
+		* Provides auth, data integrity and confidentiality
+
+= Security Associations : SAs =
+* TCP worries about dest and source and end-to-end but IP is only hop-to-hop protocol and only cares about transferring to next node (need not be dest necessarily)
+* So, in IP we dont know if the previous node received from "securely"
+* IP is connectioneless. IP-sec is connection-oriented
+* 32 bit identifier
+* origin SA interface
+* destination SA interface
+* type of encryption used
+* encryption key
+
+== IP-Sec Datagram ==
+* IP datagram is stored inside the payload of IP-Sec datagram like IPV6 inside IPV4
+* MAC: Msg authentication code => Fancy name for HASH
+* Sequence number like TCP (starts from #0)
+* SPD: Security Policy Database: "what" to do
+* SAD: Security Association Database: "how" to do 
+* Nonce = OTP to prevent replay of datagram
+* Theoretically, we have covered all the attack types but practically, there could be many methods
+
+> Hardware Security: Chip manufacturers including additional circuit that leaks data to some other device
+
+= Wireless =
+1. Infrastructure-less: BLE, LoRA
+2. Infrastructure: WiFi
+	* Need an Access Point / Base Point
+	* Search for SSID (AP's identifier)
+	* When connnected, it sends the MAC Address
+	* Sometimes, we see "Internet not connected" even if you are connected to an AP. That is because AP is not connected to the internet on their radio/wired link
+
+> Zigbee is mixed
+
+= Hidden terminal problem =
+* Send the data and hope no one else sends at the same time
+* Bad solution
+* Collision detecton is not possible because their is an Access Point in between and also the radio wave might not even reach directly between nodes
+* So, we need to implement somethign at AP because it can detect collision
+* Firstly, make RTS (request to send)
+* Then wait for AP to send back CTS (clear to send)
+* Dont send until CTS is sent
+* AP receives RTS and then waits for some time to ensure the channel remains empty and no issue due to propagation delay
+* then CTS is issued for A by AP
+* once A receives CTS, it sends the data
+* then ACK needs to be sent back from AP 
+* and, any other node can only send RTS after the channel receives ACK after CTS i.e. every other node will wait for the cycle to finish
+* Problem with the protocol: When one node is sending, all the other nodes are idle
+> MIMO: more antennas (channels)
+
+* There is no AP in bluetooth
+* Bluetooth is the only ad-hoc network which practically works for mass use
+> Google figured out apple's airdrop
+
+* Have a shared symmetric key between your node and the AP
+* Mutual authentication
+* Even on public network, when accessing https websites, people can see the data but it will be encrypted by the https website
+* NONCE: number used once
+
+= Firewall =
+* All machines that can be accessed from outside must be secured
+* Local machines are configured to trust each other
+* Local machines can access the outside world but are not accessible from the outside
+* security: need to monitor/block incoming traffic, not outgoing traffic
+* Assumption: Public network is untrusted; Local (administered) Network is trusted
+* Define capabality of the adversary
+
+== Attacks ==
+* SYN Flooding
+	* In the 3-way tcp handshake, dont send the 2nd (from sender side) syn (or 3rd overall)
+	* server will allocate and wait for the handshake to finish indefinitely
+* Earlier we could do DOS (denial of server) with only machine
+* send multiple packets with single address, different ports
+* But now, dDoS (distributed denial of server)
+* Can;t just block the whole "Region" from sending requests, now attackers can attack from different regions
+* Firewall: flags sus IPs (kinda sus ngl)
+* Firewall needs to be fast
+* Bottleneck
+
+{{{
+
+no internet access: block all outgoing packets to any ip addr, port 80
+
+no incoming tcp connections except those someone
+drop all incoming tcp syn to any ip except [some reserved]
+
+prevent web-radios from eating up bandwidth
+drop all incoming UDP packets (except DNS and router broadcasts)
+
+prevent your network beign used for a dDoS attack
+drop all icmp packets going to a "broadcast" address
+
+}}}
+
+= ACL: Access Control Lists =
+* Table of rules, applied top to bottom to incoming packets
+
+* Statefull packet filtering
+* Stateless packet filtering
+
+* New stacks have security tied to the protocol instead of an "additional" thing
+* In SDN, routers can look inside the packet to stop attacks instead of just looking at destination address
+
+* Limitations of Firewall
+	* IP Spoofing: routers cant know if data comes from claimed source
