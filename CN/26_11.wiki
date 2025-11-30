@@ -1,0 +1,57 @@
+= Thesis Analysis =
+
+{{{
+
+Epidemic Analysis
+MIT Reality Mining
+the 21st century computer mark weiser
+CBS: cell broadcast service
+	Mandatory Signal
+	For evacuate msgs by govt
+	it ued to tell which location are you in when gps was not a thing
+Indoor Localziation
+	imp for accessibility and robotics
+	crowd optimization
+  
+}}}
+
+
+= CCN =
+
+* currently we search for some content by searching the host which has that data
+	* we go to the machine and then that finds and returns the data
+	* pros: if you know the address, it is easy to find it there every time
+	* cons: if a lot of people want that data → congestion
+	* challening when the content is important
+	* we want "content" but we are forced to go a device to find the content
+* Soln: Content-Centric networking / Information Centric Network / Named Data Networking
+	* All are same thing just with different names
+	* Basically caching at routers
+	* earlier, we had caching only at the local level
+	* Start naming the content
+	* dont care about machine
+	* number of node visited is reduced -> faster
+	* more popular -> even one machine fails, we still have other machines
+* Challenges
+	* Addressing
+		* How to access the "content" if we dont have 
+	* Content ownership
+	* Updating content
+	* Authenticity of content
+		* Earlier, you were sure that that "machine" was trustable either by certificate or just trust
+	* DNS lookup challenges
+		* Number of Table entries increased significantly
+		* DNS size is still not much but the we are caching the whole content so we need to have optimised storage solution
+		* Need alternate DNS (traditional dns wont work)
+* Now we need to implement security at the content level, not the machine level
+* tries to combine ideas of P2P and CDN
+* Unicast: one to one
+* Multicast: one to many (spanning trees used, complex to implement)
+* Broadcast: one to ALL (considered waste of resources, but simple to implement)
+* Need optimisations at router storage like TTL or priority
+> ICN conference
+* Routers do pro-active caching even if that data is not requested yet but have a high change of being requested in the near future
+* Prevents dDoS
+* Side channel attack: fetch data through attack through which the targeted data is inferred
+	* Like population detected from overall power consumption in a local network
+* SNMP based attendance system

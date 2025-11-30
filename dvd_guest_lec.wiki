@@ -1,0 +1,83 @@
+* DFM: Design for manufacturability
+* Getting 22nm resolution wih 193nm light source
+* Double patterning
+* Expose the design twice with different masks to achieve much higher resolution
+* Theoretically, we can use more than 2 masks for one design to get even higher resolution
+
+= LELE Double Patterning =
+* Space between the pink and green lines is less than the technology's resolution
+* Layout → Decomposed Layout
+* Practically, it is difficult to decompose optimally
+* Cost of lithography roughly doubles
+* Contributed to non-recurring cost (needed even if one chip has to be manufactured)
+* Alignment is difficult to get spot-on and even small misalignment can lead to major issues
+* STICHING: use stiches for areas which couldn't be easily decomposed
+* Litho-etch-Litcho-etch : LELE
+	* Double lithography and double etch
+	* works or 1D design
+	* very hard for 2D
+* 2-color problem is easy
+* 3-coloring problem is NP hard
+* DP posed as a threat to moore's law as the cost per transistor started to go up or at least stay constant as we scale due to increased cost of chip
+
+= Self Aligned Double Patterning (SADP) =
+* Also called spacer lithography
+* In theory, we could expand this technique indefinitely
+* While designing, we need to think a lot about trims and spacers (not practical)
+* Decompose into mandrel and non-mandrel shapes
+
+Need massive jump
+Double or quadruple patterning seemed too hard
+Switched from 193nm to 11-13nm with Extreme Ultraviolet Light
+Difficult to find materials which are transparent to EUV
+So, switched from lens to mirrors
+EUV photon is very high energy
+Whenever it hits the reflective mask, they get damaged slightly each time
+So many mirrors are used in between that the light looses its energy
+Monopoly held by ASML in netherland
+The tool is heavier than a Boeing-747
+ASML's system uses a high-energy laser to hit tiny droplets of molten tin to create a plasma that emits EUV light.
+Challenge with EUV: pellicle
+Already short of light. We can't add another cover which reduces the light intensity further
+Defect Avoidance in EUV masks
+EUV is used in 7nm and below technologies
+With current generation EUV, 26nm pitch
+
+Resolution = K * λ / NA
+NA: Numerical Aperture
+
+EBDW: Electron-beam direct write
+Very slow
+Went from wafers/hour to hours/wafer
+No requirement of a mask
+Directly writing to a die
+Lower cost
+Great for low volume chips
+
+Nano-imprint Litho
+Create a mold and press it against the wafer
+Problem: we need to ensure mold remains defect-free after multiple "pressing"
+We are not time constrained for making this mold and hence we can use direct writing to make this mold
+
+Directed Self Assembly (DSA)
+Controlling defects is very hard
+
+Design Rules
+
+Scalable / Lambda DRs
+Using stick diagrams to showcase DRs because we can just multiply the "sticks" by a const to go to actual layout
+
+Two separate DR values : Strongly recommended (rec) and minimum (min)
+rec considers good enough margin to reduce yield loss
+min for market literature / PR
+
+but almost all designers use min because it "looks" like faster and smaller, atleast in their simulations
+
+Overhang DRC for poly because:
+1. Poly shapes are patterning critical. prone to round, line-end pullback and  similar optical defects
+2. Overlay margin: If due to some issue, there is a slight size difference, then the poly won't cover the diffusion properly and transistor won't function properly
+
+RDR (Restrictive / Prescriptive Design Rules)
+* Rules about what not to do
+
+Pattern-based DRs = DRC+
