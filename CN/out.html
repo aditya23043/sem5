@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>~/repo/sem5/CN/26_11.wiki.html</title>
+<meta name="Generator" content="Vim/9.1">
+<meta name="plugin-version" content="vim9.0_v2">
+<meta name="syntax" content="vimwiki">
+<meta name="settings" content="number_lines,use_css,no_foldcolumn,expand_tabs,line_ids,prevent_copy=,use_input_for_pc=none">
+<meta name="colorscheme" content="onedark">
+<style>
+<!--
+pre { font-family: monospace; color: #abb2bf; background-color: #000000; }
+body { font-family: monospace; color: #abb2bf; background-color: #000000; }
+* { font-size: 1em; }
+a { color: inherit; }
+.Normal { color: #abb2bf; }
+.LineNr { color: #4b5263; }
+.Identifier { color: #e06c75; }
+.Title { color: #98c379; }
+.PreProc { color: #e5c07b; }
+-->
+</style>
+
+<script>
+<!--
+
+/* function to open any folds containing a jumped-to line before jumping to it */
+function JumpToLine()
+{
+  var lineNum;
+  lineNum = window.location.hash;
+  lineNum = lineNum.substr(1); /* strip off '#' */
+
+  if (lineNum.indexOf('L') == -1) {
+    lineNum = 'L'+lineNum;
+  }
+  var lineElem = document.getElementById(lineNum);
+  /* Always jump to new location even if the line was hidden inside a fold, or
+   * we corrected the raw number to a line ID.
+   */
+  if (lineElem) {
+    lineElem.scrollIntoView(true);
+  }
+  return true;
+}
+if ('onhashchange' in window) {
+  window.onhashchange = JumpToLine;
+}
+
+-->
+</script>
+</head>
+<body onload='JumpToLine();'>
+<pre id='vimCodeElement'>
+<span id="L1" class="LineNr"> 1 </span><span class="Normal">=</span><span class="Title"> Thesis Analysis </span><span class="Normal">=</span>
+<span id="L2" class="LineNr"> 2 </span>
+<span id="L3" class="LineNr"> 3 </span><span class="PreProc">{{{</span>
+<span id="L4" class="LineNr"> 4 </span>
+<span id="L5" class="LineNr"> 5 </span><span class="PreProc">Epidemic Analysis</span>
+<span id="L6" class="LineNr"> 6 </span><span class="PreProc">MIT Reality Mining</span>
+<span id="L7" class="LineNr"> 7 </span><span class="PreProc">the 21st century computer mark weiser</span>
+<span id="L8" class="LineNr"> 8 </span><span class="PreProc">CBS: cell broadcast service</span>
+<span id="L9" class="LineNr"> 9 </span><span class="PreProc">    Mandatory Signal</span>
+<span id="L10" class="LineNr">10 </span><span class="PreProc">    For evacuate msgs by govt</span>
+<span id="L11" class="LineNr">11 </span><span class="PreProc">    it ued to tell which location are you in when gps was not a thing</span>
+<span id="L12" class="LineNr">12 </span><span class="PreProc">Indoor Localziation</span>
+<span id="L13" class="LineNr">13 </span><span class="PreProc">    imp for accessibility and robotics</span>
+<span id="L14" class="LineNr">14 </span><span class="PreProc">    crowd optimization</span>
+<span id="L15" class="LineNr">15 </span><span class="PreProc">  </span>
+<span id="L16" class="LineNr">16 </span><span class="PreProc">}}}</span>
+<span id="L17" class="LineNr">17 </span>
+<span id="L18" class="LineNr">18 </span>
+<span id="L19" class="LineNr">19 </span><span class="Normal">=</span><span class="Title"> CCN </span><span class="Normal">=</span>
+<span id="L20" class="LineNr">20 </span>
+<span id="L21" class="LineNr">21 </span><span class="Identifier">* </span>currently we search for some content by searching the host which has that data
+<span id="L22" class="LineNr">22 </span><span class="Identifier">    * </span>we go to the machine and then that finds and returns the data
+<span id="L23" class="LineNr">23 </span><span class="Identifier">    * </span>pros: if you know the address, it is easy to find it there every time
+<span id="L24" class="LineNr">24 </span><span class="Identifier">    * </span>cons: if a lot of people want that data → congestion
+<span id="L25" class="LineNr">25 </span><span class="Identifier">    * </span>challening when the content is important
+<span id="L26" class="LineNr">26 </span><span class="Identifier">    * </span>we want &quot;content&quot; but we are forced to go a device to find the content
+<span id="L27" class="LineNr">27 </span><span class="Identifier">* </span>Soln: Content-Centric networking / Information Centric Network / Named Data Networking
+<span id="L28" class="LineNr">28 </span><span class="Identifier">    * </span>All are same thing just with different names
+<span id="L29" class="LineNr">29 </span><span class="Identifier">    * </span>Basically caching at routers
+<span id="L30" class="LineNr">30 </span><span class="Identifier">    * </span>earlier, we had caching only at the local level
+<span id="L31" class="LineNr">31 </span><span class="Identifier">    * </span>Start naming the content
+<span id="L32" class="LineNr">32 </span><span class="Identifier">    * </span>dont care about machine
+<span id="L33" class="LineNr">33 </span><span class="Identifier">    * </span>number of node visited is reduced -&gt; faster
+<span id="L34" class="LineNr">34 </span><span class="Identifier">    * </span>more popular -&gt; even one machine fails, we still have other machines
+<span id="L35" class="LineNr">35 </span><span class="Identifier">* </span>Challenges
+<span id="L36" class="LineNr">36 </span><span class="Identifier">    * </span>Addressing
+<span id="L37" class="LineNr">37 </span><span class="Identifier">        * </span>How to access the &quot;content&quot; if we dont have
+<span id="L38" class="LineNr">38 </span><span class="Identifier">    * </span>Content ownership
+<span id="L39" class="LineNr">39 </span><span class="Identifier">    * </span>Updating content
+<span id="L40" class="LineNr">40 </span><span class="Identifier">    * </span>Authenticity of content
+<span id="L41" class="LineNr">41 </span><span class="Identifier">        * </span>Earlier, you were sure that that &quot;machine&quot; was trustable either by certificate or just trust
+<span id="L42" class="LineNr">42 </span><span class="Identifier">    * </span>DNS lookup challenges
+<span id="L43" class="LineNr">43 </span><span class="Identifier">        * </span>Number of Table entries increased significantly
+<span id="L44" class="LineNr">44 </span><span class="Identifier">        * </span>DNS size is still not much but the we are caching the whole content so we need to have optimised storage solution
+<span id="L45" class="LineNr">45 </span><span class="Identifier">        * </span>Need alternate DNS (traditional dns wont work)
+<span id="L46" class="LineNr">46 </span><span class="Identifier">* </span>Now we need to implement security at the content level, not the machine level
+<span id="L47" class="LineNr">47 </span><span class="Identifier">* </span>tries to combine ideas of P2P and CDN
+<span id="L48" class="LineNr">48 </span><span class="Identifier">* </span>Unicast: one to one
+<span id="L49" class="LineNr">49 </span><span class="Identifier">* </span>Multicast: one to many (spanning trees used, complex to implement)
+<span id="L50" class="LineNr">50 </span><span class="Identifier">* </span>Broadcast: one to ALL (considered waste of resources, but simple to implement)
+<span id="L51" class="LineNr">51 </span><span class="Identifier">* </span>Need optimisations at router storage like TTL or priority
+<span id="L52" class="LineNr">52 </span>&gt; ICN conference
+<span id="L53" class="LineNr">53 </span><span class="Identifier">* </span>Routers do pro-active caching even if that data is not requested yet but have a high change of being requested in the near future
+<span id="L54" class="LineNr">54 </span><span class="Identifier">* </span>Prevents dDoS
+<span id="L55" class="LineNr">55 </span><span class="Identifier">* </span>Side channel attack: fetch data through attack through which the targeted data is inferred
+<span id="L56" class="LineNr">56 </span><span class="Identifier">    * </span>Like population detected from overall power consumption in a local network
+<span id="L57" class="LineNr">57 </span><span class="Identifier">* </span>SNMP based attendance system
+</pre>
+</body>
+</html>
+<!-- vim: set foldmethod=manual : -->

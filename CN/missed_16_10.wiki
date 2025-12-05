@@ -32,3 +32,50 @@ iteration caused by:
 
 distributed, self-stopping
 DV → Distance Vector
+
+Good news travels fast
+
+== Problem: Count to infinity ==
+* Worst case: Stuck in a loop when a local link's cost changes from a small values to largest
+* Stuck in oscillation until link is stable
+* time to live; packet dies after some time
+* bad news travels slow
+* solution: before the change, z -> x was through y
+* now when y queries z for its Distance Vector table, set Dz(x) = infinity
+* not ideal because z -> x could be optimum path but much more efficient than oscillating
+* then, eventually x sends its DV table and the distance is optimized
+
+= Autonomous Systems =
+* Network divided into Autonomous Systems (AS) / Domains
+	1. Intra-AS routing
+	2. Inter-AS routing
+* An AS is controlled by some organization / entity (eg: Airtel/Idea/IIITD/IIT/etc)
+
+== Intra-AS Routing ==
+* RIP: Routing Information Protocol
+	* Based on Bellman Ford (DV)
+* EIGRP: Enhanced Interior Gateway Routing Protocol
+* OSPF: Open Shortest Path First
+	* Link State routing algo
+	* Each router sends advertisements over IP rather than TCP/UDP to all other routers in entire AS
+	* Dijkstra
+
+== Inter-AS Routing ==
+* BGP (Border Gateway Protocol)
+* Only gateway (edge) routers matter
+* eBGP, iBGP
+* All AS* will know what other AS know eventually
+* Link-state protocol between gateway routers
+* prefix matching and subnet <- iBGP
+* Normally routers are cost based but they may also be policy-driven
+
+= ICMP : Not part of syllabus =
+* Internet Control message protocol
+* not used to transfer user data
+* ICMP uses IP to transfer
+* between IP and Transport layer
+* to just pass control messages
+* to see if host is reachable or not
+* used by ping, traceroute, etc
+* Another protocol -> SNMP: Simple Network Management Protocol
+* when a new device connects to a router; when they disconnect
